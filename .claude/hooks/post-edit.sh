@@ -235,6 +235,50 @@ case "$ext" in
     ;;
 esac
 
+# --- 9. Hardcoded secrets / credentials in source -----------------------------
+# Catches secrets being written INTO source files. Excludes .env.example,
+# process.env/import.meta.env references, and obvious placeholders.
+case "$ext" in
+  js|jsx|ts|tsx|mjs|cjs|css|scss|json|jsonc|yaml|yml|html|vue|svelte|py|rb|go|rs|sh|env)
+    base="$(basename "$FP")"
+    is_env_example=false
+    case "$base" in .env.example|env.example) is_env_example=true ;; esac
+
+    if [ "$is_env_example" = "false" ]; then
+      secrethits="$(node -e '
+        const fs=require("fs");const f=process.argv[1];let s="";
+        try{s=fs.readFileSync(f,"utf8")}catch(e){process.exit(0)}
+        const lines=s.split(/\n/),out=[];
+        const patterns=[
+          {re:/AKIA[0-9A-Z]{16}/,msg:"AWS access key"},
+          {re:/-----BEGIN [A-Z ]*PRIVATE KEY-----/,msg:"Private key header"},
+          {re:/\bsk-[A-Za-z0-9]{20,}/,msg:"OpenAI-style secret key"},
+          {re:/gh[pousr]_[A-Za-z0-9]{20,}/,msg:"GitHub token"},
+          {re:/xox[baprs]-/,msg:"Slack token"},
+          {re:/(api[_-]?key|secret|token|password)\s*[:=]\s*["\x27][^"\x27]{8,}["\x27]/i,msg:"Hardcoded credential assignment"},
+        ];
+        const placeholderRe=/your-|xxx|changeme|<[^>]+>|example|\*{4,}/i;
+        const envRefRe=/process\.env|import\.meta\.env/;
+        lines.forEach((ln,i)=>{
+          if(envRefRe.test(ln)) return;
+          for(const p of patterns){
+            if(p.re.test(ln)){
+              const trimmed=ln.trim().slice(0,80);
+              if(placeholderRe.test(trimmed)) continue;
+              out.push("  line "+(i+1)+": "+p.msg+": "+trimmed);
+              break;
+            }
+          }
+        });
+        out.slice(0,5).forEach(l=>console.log(l));
+      ' "$FP" 2>/dev/null || true)"
+      if [ -n "$secrethits" ]; then
+        problems+=("Possible hardcoded secrets in \`$FP\` — use environment variables or a secrets manager instead of embedding credentials in source:"$'\n'"$secrethits")
+      fi
+    fi
+    ;;
+esac
+
 # --- report --------------------------------------------------------------------
 if [ ${#problems[@]} -gt 0 ]; then
   {
