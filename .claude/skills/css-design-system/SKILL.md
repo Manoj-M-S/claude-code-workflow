@@ -1,14 +1,14 @@
 ---
 name: css-design-system
 description: >-
-  Comprehensive CSS and Tailwind CSS design system skill. Covers design token
-  architecture (primitive → semantic → component), Tailwind v3/v4 configuration,
-  color palettes, typography scales, spacing grids, dark mode theming, z-index
-  management, animation tokens, responsive patterns, and common anti-patterns.
-  Trigger this skill when the user asks to "set up design tokens", "create a
-  design system", "audit my CSS", "Tailwind best practices", "add dark mode",
-  "theme setup", "refactor my styles", "create CSS variables", "set up a
-  Tailwind config", "organize my colors", or "fix my CSS architecture".
+  CSS and Tailwind design-token architecture skill. Covers the three-tier token
+  hierarchy (primitive → semantic → component), Tailwind v3/v4 configuration,
+  dark mode mechanics, cn() utility, @layer usage, and the CSS audit workflow.
+  Trigger when the user asks to "audit my CSS", "refactor my token system",
+  "architect design tokens", "fix my CSS architecture", "reorganize my
+  variables", or "review my Tailwind config". For first-time project
+  bootstrapping use `/project-setup`; for visual/aesthetic decisions use
+  `/frontend-design`.
 ---
 
 # CSS & Tailwind Design System
@@ -414,154 +414,13 @@ export function cn(...inputs: ClassValue[]): string {
 
 ---
 
-## 5 — Typography Best Practices
+## 5 — Conventions Reference
 
-### Font Stack Recommendations
-
-| Category | Font Stack |
-| :--- | :--- |
-| **Sans-serif (UI)** | `Inter`, `Outfit`, `Plus Jakarta Sans`, then system fallbacks |
-| **Serif (Editorial)** | `Lora`, `Merriweather`, `Playfair Display` |
-| **Monospace (Code)** | `JetBrains Mono`, `Fira Code`, `Cascadia Code` |
-
-### Loading Google Fonts
-
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-```
-
-Always use `font-display: swap` (Google Fonts adds this by default with `&display=swap`).
-
-### Rules
-- All font sizes in `rem` — never `px` for type.
-- Line-height unitless (e.g. `1.5`, not `24px`).
-- Body text: `1rem` / `line-height: 1.6`.
-- Headings: tighter line-height (`1.1`–`1.3`).
-- Max prose width: `65ch` for readability.
-
----
-
-## 6 — Spacing & Layout
-
-### The 4px/8px Grid
-
-All spacing values must be multiples of 4px:
-
-| Token | Value | Use Cases |
-| :--- | :--- | :--- |
-| `--spacing-1` | `4px` | Tight icon gaps, hairline padding |
-| `--spacing-2` | `8px` | Inline element gaps, small padding |
-| `--spacing-3` | `12px` | Input padding, card inner spacing |
-| `--spacing-4` | `16px` | Default padding, list gaps |
-| `--spacing-6` | `24px` | Section inner padding, card padding |
-| `--spacing-8` | `32px` | Section gaps, large padding |
-| `--spacing-12` | `48px` | Page sections |
-| `--spacing-16` | `64px` | Hero sections, major separators |
-
-### Rules
-- Spacing/padding/margin/gap: always in `px` (or tokens resolving to `px`).
-- Widths/heights: prefer `%`, `max-width`, `min-height`, `aspect-ratio` over fixed values.
-- Use Flexbox/Grid — never floats.
-- Absolute positioning only when genuine overlap is needed (document the stacking context).
-
----
-
-## 7 — Responsive Design
-
-### Mobile-First Pattern
-
-```css
-/* Base: mobile (< 640px) */
-.grid-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-4);
-}
-
-/* sm: 640px+ */
-@media (min-width: 40rem) {
-  .grid-layout {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-6);
-  }
-}
-
-/* lg: 1024px+ */
-@media (min-width: 64rem) {
-  .grid-layout {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-8);
-  }
-}
-```
-
-**Tailwind equivalent:**
-```html
-<div class="grid grid-cols-1 gap-[16px] sm:grid-cols-2 sm:gap-[24px] lg:grid-cols-3 lg:gap-[32px]">
-```
-
-### Rules
-- Media queries in `rem`/`em` — responsive to user font scaling.
-- Always mobile-first (`min-width`), never desktop-first (`max-width`).
-- Test at 375px (mobile), 768px (tablet), 1024px+ (desktop).
-- Use container queries (`@container`) for component-level responsiveness when available.
-
----
-
-## 8 — Animation & Motion
-
-```css
-:root {
-  --duration-fast:   100ms;
-  --duration-normal: 200ms;
-  --duration-slow:   400ms;
-  --ease-default:    cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out:        cubic-bezier(0, 0, 0.2, 1);
-  --ease-bounce:     cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-```
-
-### Rules
-- Only animate `transform` and `opacity` — never `top`/`left`/`width`/`height` (causes layout thrash).
-- Always respect `prefers-reduced-motion`.
-- Use CSS transitions for state changes, CSS animations for looping/complex sequences.
-- Duration: interactions ≤ 200ms, entrances/exits 200–400ms.
-
----
-
-## 9 — Anti-Patterns Checklist
-
-When auditing or writing CSS, flag these:
-
-| Anti-Pattern | Fix |
-| :--- | :--- |
-| Raw hex colors (`#3B82F6`) in components | Use `var(--color-*)` tokens |
-| `!important` | Fix specificity — flatten selectors, use `@layer` |
-| `z-index: 9999` | Use z-index scale tokens |
-| Deep nesting (> 3 levels) | Flatten with BEM or scoped classes |
-| ID selectors for styling | Use classes — IDs are for JS/a11y anchors |
-| Arbitrary Tailwind values off-grid (`w-[17px]`) | Use nearest grid value or create a token |
-| Same className string (6+ utils) in 2+ places | Extract to `@layer components` or shared component |
-| `font-size` in `px` | Always `rem` for type |
-| Spacing/padding in `rem` | Always `px` for spacing |
-| Desktop-first `max-width` queries | Use mobile-first `min-width` |
-| Animating layout properties | Use `transform`/`opacity` only |
-| Missing `prefers-reduced-motion` | Add the `@media` query |
-| Per-component `dark:bg-*` with raw colors | Override semantic tokens in `.dark` instead |
+For units (rem vs px), spacing grids, responsive rules, animation constraints,
+accessibility requirements, and the full anti-patterns checklist, see
+`.claude/references/conventions.md` — the single source of truth. The token
+architecture above (sections 1–4) is unique to this skill; the conventions
+file covers the rules that apply across all styling work.
 
 ---
 

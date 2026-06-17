@@ -71,6 +71,9 @@ These are enforced by hooks in `.claude/hooks/`, but stating them here means
 Claude follows them while writing code in the first place — so the hooks rarely
 have to fire. (Hooks are the backstop; this file is the front door.)
 
+> **Authoritative detail:** `.claude/references/conventions.md` is the single
+> source of truth for these rules. The summary below is for quick reference.
+
 ## Units & Sizing
 
 - **Font sizes in `rem`** — respects the user's browser font-size setting (accessibility). Never `px` for type.

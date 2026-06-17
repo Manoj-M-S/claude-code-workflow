@@ -1,13 +1,14 @@
 ---
 name: frontend-design
 description: >-
-  Guidance for distinctive, intentional visual design when building new UI or
-  reshaping an existing one. Covers aesthetic direction, typography, layout,
-  interactive polish, responsive execution, dark mode theming, and UX quality.
-  Triggers on: "design a page", "make this look premium", "create a landing page",
-  "visual identity", "theme choices", "typography pairing", "styling ideas",
-  "aesthetics", "creative UI design", "design review", "polish the UI",
-  "improve UX", "add animations", or "make it responsive".
+  Aesthetic direction and visual design guidance for building distinctive UI.
+  Covers palette, typography pairing, layout concepts, signature elements,
+  the brainstorm→critique design process, and UX quality principles.
+  Triggers on: "design a page", "make this look premium", "visual identity",
+  "theme choices", "typography pairing", "styling ideas", "aesthetics",
+  "creative UI design", or "design review". For token plumbing and CSS
+  architecture use `/css-design-system`; for first-time project bootstrapping
+  use `/project-setup`.
 ---
 
 # Frontend Design & UX
@@ -68,28 +69,17 @@ To avoid common AI-generated design patterns (like warm cream background + serif
 
 ---
 
-## 5. UI Polish & Execution Checklist
+## 5. Execution Standards
 
-When implementing or reviewing UI, verify every item below. This is the practical execution layer that turns a design direction into a polished product.
+For units (rem vs px), spacing grids, responsive rules, accessibility
+requirements, and the full conventions checklist, see
+`.claude/references/conventions.md`. When implementing a design direction
+from this skill, apply those rules to the code.
 
-### Visual Quality
-- **Rich aesthetics**: Harmonized color palettes (using HSL, OKLCH, or curated Tailwind scales), smooth gradients, modern typography, and clean layouts. No generic colors.
-- **Interactive polish**: Add subtle interactive states (`hover:`, `focus:`, `active:`), smooth transitions (`transition-colors duration-200 ease-in-out`), and loading skeletons. Avoid `transition-all` — transition only the properties that change.
+Additionally, verify these UX-specific items during implementation:
+
+- **Interactive polish**: Add subtle states (`hover:`, `focus:`, `active:`), smooth transitions (`transition-colors duration-200 ease-in-out`), and loading skeletons. Avoid `transition-all` — transition only the properties that change.
 - **Dark mode continuity**: Components must look just as striking in dark mode as in light mode. Test both themes.
-
-### Spacing & Layout
-- **Spacing consistency**: All margins, paddings, and gaps use pixels (`px`) or design tokens. Never `rem` for spacing.
-- **Typography in `rem`**: All font sizes in `rem`. Unitless line-height. Max prose width `65ch`.
-- **4px/8px grid**: Every spacing value is a multiple of 4px.
-
-### Responsive Execution
-- **Mobile-first**: Base styles for small screens, `min-width` breakpoints layer up.
-- **Test at real breakpoints**: 375px (mobile), 768px (tablet), 1024px+ (desktop).
-- **Touch targets**: All interactive buttons and links have a minimum touch target size of 44×44px on mobile.
-
-### UX Quality
 - **Loading states**: Never leave a screen blank when fetching data. Build clean placeholder skeletons or loaders.
 - **Empty states**: Treat empty screens as calls to action rather than blank space.
 - **Error states**: Provide helpful, actionable error messages. No generic "Something went wrong."
-- **Keyboard navigation**: All interactive elements focusable with visible focus styles.
-- **Reduced motion**: Respect `prefers-reduced-motion` for all animations and transitions.
