@@ -1,5 +1,5 @@
 ---
-name: github-pr
+name: pr-raise
 description: >-
   Raise a GitHub pull request the safe way: run the project's quality gates
   (format check, lint, type check, build) FIRST, and only open the PR if every

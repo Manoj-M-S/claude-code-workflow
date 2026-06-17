@@ -1,5 +1,5 @@
 ---
-name: qed42-content
+name: qed42-blog-writing
 description: >
   Use this skill for ALL content work related to QED42 — the digital experience company that
   builds and modernises enterprise platforms and integrates AI where it creates measurable
@@ -21,9 +21,9 @@ transformation leads — at mid-to-large organisations managing complex digital 
 
 Before doing anything, read the reference files that apply to the task:
 
-- For voice, tone, and editorial rules → `references/voice-and-editorial.md`
-- For QED42's positioning, services, and ideal clients → `references/positioning.md`
-- For writing patterns extracted from real QED42 case studies → `references/writing-patterns.md`
+- For voice, tone, and editorial rules → `.claude/references/voice-and-editorial.md`
+- For QED42's positioning, services, and ideal clients → `.claude/references/positioning.md`
+- For writing patterns extracted from real QED42 case studies → `.claude/references/writing-patterns.md`
 
 ---
 
@@ -42,7 +42,7 @@ or wants to fill editorial calendar gaps.
 
 1. Ask (if not already clear): Is this for a specific service area, audience role, or content
    format? Or open-ended?
-2. Cross-reference QED42's positioning (see `references/positioning.md`) against the
+2. Cross-reference QED42's positioning (see `.claude/references/positioning.md`) against the
    request, then use web search to scan what competitors and industry publications are
    currently covering in that space.
 3. Output a prioritised list of 5–8 topic suggestions. For each, include:
@@ -145,9 +145,9 @@ content piece.
 **Before writing:**
 
 1. Confirm the content brief (or create one inline if not provided).
-2. Read `references/voice-and-editorial.md` carefully — especially the DO/DON'T list and
+2. Read `.claude/references/voice-and-editorial.md` carefully — especially the DO/DON'T list and
    the sentence-level patterns.
-3. Read `references/writing-patterns.md` to internalise how QED42 case studies are
+3. Read `.claude/references/writing-patterns.md` to internalise how QED42 case studies are
    structured. The voice in the case studies is the target voice.
 
 **Format rules by content type:**
@@ -175,7 +175,7 @@ _Case study repurpose:_
 
 **After drafting:**
 
-- Run a self-check against the AVOID list in `references/voice-and-editorial.md`.
+- Run a self-check against the AVOID list in `.claude/references/voice-and-editorial.md`.
 - Flag any sentence that sounds like it was written by AI. Rewrite it.
 - Confirm the piece passes the Zinsser test: could any sentence be cut without losing meaning?
 
