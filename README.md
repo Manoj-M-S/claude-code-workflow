@@ -42,33 +42,39 @@ graph TD
 
 ```filetree
 .claude/
-├── settings.json          # Main settings, hook configs, and MCP servers
-├── agents/                # Multi-step orchestrator pipelines
-│   ├── task-pipeline.md   # Ticket classification & build pipeline
-│   ├── pr-pipeline.md     # Pre-shipping validation & PR creator
-│   ├── a11y-audit.md      # WCAG 2.1 AA accessibility specialist
-│   └── seo-audit.md       # SEO, structured data, and meta tag auditor
-├── hooks/                 # Lifecycle shell scripts triggered by Claude events
-│   ├── env-check.sh       # Verifies local env vars match template configs
-│   ├── post-edit.sh       # Instantly checks files after edit/write tools
-│   └── pre-stop.sh        # Runs typechecks, tests, and duplicate scans on exit
-├── skills/                # Domain-specific developer skills (commands)
-│   ├── tdd/               # Enforces Red-Green-Refactor TDD flow
-│   ├── task-planner/      # Generates structured implementation plans
-│   ├── grill-me/          # Pressure-tests feature specs step-by-step
-│   ├── domain-model/      # Aligns nomenclature with GLOSSARY.md
-│   ├── css-design-system/ # Manages tokens, variables, & styling rules
-│   ├── quality-fixer-frontend/ # Automates lint, formatting, and test fixes
-│   ├── qa-validate/       # Playwright browser integration testing
-│   ├── pr-raise/          # Strict gated push & GitHub PR creation
-│   ├── pr-review/         # Comprehensive diff review & issue labeling
-│   ├── figma-to-code/     # Translates Figma design MCP data to React/Svelte
-│   ├── component-generator/# Scaffolds UI components with tests
-│   └── prompt-optimizer/  # Rewrites vague prompts to high-performance prompts
-└── references/            # Editorial guidelines and project positionings
-    ├── voice-and-editorial.md
-    ├── positioning.md
-    └── writing-patterns.md
+├── settings.json              # Main settings, hook configs, permissions, and MCP servers
+├── agents/                    # Multi-step orchestrator pipelines
+│   ├── task-pipeline.md       # Ticket classification & build pipeline
+│   ├── pr-pipeline.md         # Pre-shipping validation & PR creator
+│   ├── a11y-audit.md          # WCAG 2.1 AA accessibility specialist (subagent)
+│   └── seo-audit.md           # SEO, structured data, and meta tag auditor (subagent)
+├── hooks/                     # Lifecycle shell scripts triggered by Claude events
+│   ├── env-check.sh           # Warns if local env vars don't match .env.example
+│   ├── protect-secrets.sh     # Blocks reading secret files (.env, .pem, .key, etc.)
+│   ├── post-edit.sh           # Checks files after edit/write (format, lint, conventions, secrets)
+│   └── pre-stop.sh            # Runs typechecks, tests, and duplicate scans on exit
+├── skills/                    # Domain-specific developer skills (16 slash commands)
+│   ├── tdd/                   # Enforces Red-Green-Refactor TDD flow
+│   ├── task-planner/          # Generates structured implementation plans
+│   ├── grill-me/              # Pressure-tests feature specs step-by-step
+│   ├── domain-model/          # Aligns nomenclature with GLOSSARY.md
+│   ├── css-design-system/     # Token architecture, Tailwind config, CSS audit
+│   ├── frontend-design/       # Aesthetic direction, typography, visual identity
+│   ├── project-setup/         # One-time bootstrap: tokens, dark mode, fonts, cn()
+│   ├── quality-fixer-frontend/# Automates lint, formatting, typecheck, test, build fixes
+│   ├── qa-validate/           # Playwright browser integration testing
+│   ├── pr-raise/              # Strict gated push & GitHub PR creation
+│   ├── pr-review/             # Comprehensive diff review & issue labeling
+│   ├── figma-to-code/         # Translates Figma design MCP data to React/Svelte
+│   ├── component-generator/   # Scaffolds UI components with tests
+│   ├── prompt-optimizer/      # Rewrites vague prompts to high-performance prompts
+│   ├── improve-codebase-architecture/ # Deep module refactoring proposals
+│   └── qed42-blog-writing/    # QED42 content strategy, briefs, and drafts
+└── references/                # Shared reference files consumed by skills
+    ├── conventions.md         # Single source of truth for frontend conventions
+    ├── voice-and-editorial.md # QED42 voice, tone, and editorial rules (used by qed42-blog-writing)
+    ├── positioning.md         # QED42 positioning and services (used by qed42-blog-writing)
+    └── writing-patterns.md    # QED42 case study patterns (used by qed42-blog-writing)
 ```
 
 ---
@@ -79,11 +85,11 @@ Orchestrator agents chain multiple skills in a structured sequence to execute br
 
 ### 📋 Task Pipeline (`task-pipeline.md`)
 * **Trigger phrases:** `"build this ticket"`, `"task pipeline"`, `"implement this"`, `"start work on"`
-* **Flow:** Classifies the issue (bug/feature/refactor) $\rightarrow$ Runs `/task-planner` $\rightarrow$ Pressure-tests assumptions $\rightarrow$ Runs `/tdd` during implementation $\rightarrow$ Quality gates check.
+* **Flow:** Classifies the issue (bug/feature/refactor) → Runs `/task-planner` → Pressure-tests assumptions → Runs `/tdd` during implementation → Quality gates check.
 
 ### 🚀 PR Pipeline (`pr-pipeline.md`)
 * **Trigger phrases:** `"ship it"`, `"PR pipeline"`, `"full PR"`
-* **Flow:** Requirements check $\rightarrow$ CSS/convention audit $\rightarrow$ Runs `/quality-fixer-frontend` $\rightarrow$ Generates automated release documentation $\rightarrow$ Opens pull request using `/pr-raise`.
+* **Flow:** Requirements check → CSS/convention audit → Runs `/quality-fixer-frontend` → Writes a PR description → Opens pull request using `/pr-raise`.
 
 ### ♿ Accessibility Audit (`a11y-audit.md`)
 * **Focus:** WCAG 2.1 AA standards.
@@ -98,11 +104,15 @@ Orchestrator agents chain multiple skills in a structured sequence to execute br
 
 Defined inside `.claude/settings.json`, these hooks act as automated quality gates. They prevent Claude from submitting code that doesn't meet project standards.
 
-### 1. `SessionStart` $\rightarrow$ `env-check.sh`
-* **Purpose:** Runs when Claude starts a session.
-* **Validation:** Reads `.env.example` and compares it to `.env.local` or `.env`. Logs warnings and stops if required local configuration keys are missing.
+### 1. `PreToolUse` (Read | Bash) → `protect-secrets.sh`
+* **Purpose:** Runs before Claude reads a file or executes a shell command.
+* **Validation:** Blocks access to secret files (`.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `id_rsa`, credentials, `.ssh/`). Allows `.env.example`. For Bash commands, detects read utilities (`cat`, `grep`, `head`, `tail`, etc.) targeting secret files.
 
-### 2. `PostToolUse` (Edit | Write) $\rightarrow$ `post-edit.sh`
+### 2. `SessionStart` → `env-check.sh`
+* **Purpose:** Runs when Claude starts a session.
+* **Validation:** Reads `.env.example` and compares it to `.env.local` or `.env`. Warns (non-blocking) if local configuration keys are missing.
+
+### 3. `PostToolUse` (Edit | Write) → `post-edit.sh`
 * **Purpose:** Runs immediately after Claude modifies or creates a file.
 * **Validation:**
   * **Prettier**: Rejects files not formatted correctly.
@@ -112,8 +122,10 @@ Defined inside `.claude/settings.json`, these hooks act as automated quality gat
   * **Color Custom Properties**: Rejects hardcoded hex/rgb colors; mandates CSS variable tokens.
   * **Stacking Context**: Catches hardcoded `z-index` numbers; mandates tokenized indexes.
   * **Bundle-Size Guard**: Blocks wildcard imports (`lucide-react`) or bloated libraries (`lodash`, `moment`).
+  * **`!important` Detection**: Flags `!important` and suggests specificity fixes.
+  * **Secret Scan**: Catches hardcoded credentials (AWS keys, private key headers, API tokens) being written into source files.
 
-### 3. `Stop` $\rightarrow$ `pre-stop.sh`
+### 4. `Stop` → `pre-stop.sh`
 * **Purpose:** Runs when Claude attempts to finish a turn and stop.
 * **Validation:**
   * Runs TypeScript compiler (`tsc --noEmit`) to verify type safety.
@@ -129,16 +141,22 @@ Skills are specialized tools containing detailed prompt guidelines that Claude i
 
 | Skill | Purpose | Key Commands / Behavior |
 | :--- | :--- | :--- |
-| **`/tdd`** | Enforces test-driven development cycles. | Red (write failing test) $\rightarrow$ Green (make it pass) $\rightarrow$ Refactor. |
+| **`/tdd`** | Enforces test-driven development cycles. | Red (write failing test) → Green (make it pass) → Refactor. |
 | **`/task-planner`** | Translates tickets to step-by-step execution plans. | Prepares test strategy, risk analysis, and Git branch structure. |
 | **`/grill-me`** | Interrogates specifications before coding. | Asks clarifying questions one-at-a-time to eliminate ambiguity. |
-| **`/domain-model`**| Coordinates a domain vocabulary. | Generates and aligns naming structures with `GLOSSARY.md`. |
-| **`/css-design-system`**| Configures CSS custom properties. | Audits spacing/typography scales, ensures strict theme tokens. |
-| **`/quality-fixer-frontend`**| Fixes failing lint, typecheck, or tests. | Runs compiler and linters, auto-fixing issues where possible. |
+| **`/domain-model`** | Coordinates a domain vocabulary. | Generates and aligns naming structures with `GLOSSARY.md`. |
+| **`/css-design-system`** | Audits/architects CSS token systems. | Three-tier tokens, Tailwind config, dark mode, audit workflow. |
+| **`/frontend-design`** | Visual/aesthetic design direction. | Palette, typography pairing, signature elements, brainstorm→critique. |
+| **`/project-setup`** | One-time project styling bootstrap. | Tokens, Tailwind config, dark mode, fonts, cn(), base styles. |
+| **`/quality-fixer-frontend`** | Fixes failing lint, typecheck, or tests. | Runs compiler and linters, auto-fixing issues where possible. |
 | **`/qa-validate`** | End-to-end user journey validation. | Automates local Playwright/Chrome-devtools testing steps. |
 | **`/pr-raise`** | Pre-PR gated publisher. | Runs format, lint, typecheck, and build before calling `gh pr create`. |
 | **`/pr-review`** | Code reviewer. | Scours diffs for architectural issues and logs them by severity. |
-| **`/figma-to-code`**| UI designer tool. | Translates Figma mockups to CSS-token-aligned component code. |
+| **`/figma-to-code`** | Figma design to code. | Translates Figma mockups to CSS-token-aligned component code. |
+| **`/component-generator`** | Scaffolds UI components. | Generates accessible, responsive, tested React/Svelte components. |
+| **`/prompt-optimizer`** | Improves AI prompts. | Rewrites vague prompts to structured, high-performance prompts. |
+| **`/improve-codebase-architecture`** | Module depth analysis. | Identifies shallow modules and proposes deep-module refactors. |
+| **`/qed42-blog-writing`** | QED42 content work. | Topic suggestions, content briefs, market research, first drafts. |
 
 ---
 
