@@ -38,6 +38,32 @@ graph TD
 
 ---
 
+## 🗺️ Which Tool When?
+
+Not sure where to start? Use this table to find the right entry point for common scenarios.
+
+| Scenario | Use |
+| :--- | :--- |
+| Starting a brand-new project (tokens, dark mode, Tailwind) | `/project-setup` |
+| Building a ticket end-to-end (plan → code → quality → QA) | `task-pipeline` agent |
+| Pressure-testing a plan before writing any code | `/grill-me` |
+| Doing strict test-first Red-Green-Refactor TDD on a unit | `/tdd` *(standalone, opt-in — not a pipeline step)* |
+| Generating a single component | `/component-generator` |
+| Turning a Figma design into production code | `/figma-to-code` |
+| Auditing or refactoring an existing token system | `/css-design-system` |
+| Deciding visual direction, palette, or typography | `/frontend-design` |
+| Fixing failing lint, type errors, or broken tests | `/quality-fixer-frontend` |
+| Reviewing a PR diff for bugs, architecture, and nits | `/pr-review` |
+| Shipping — raising a pull request with full gates | `pr-pipeline` agent or `/pr-raise` |
+| Accessibility audit (WCAG 2.1 AA) | `a11y-audit` subagent |
+| SEO, meta tags, structured data audit | `seo-audit` subagent |
+| Validating a feature in a real browser | `/qa-validate` |
+| Writing QED42 blog content or content briefs | `/qed42-blog-writing` |
+| Sharpening a vague or underspecified prompt | `/prompt-optimizer` |
+| Identifying and refactoring shallow modules | `/improve-codebase-architecture` |
+
+---
+
 ## 🛠️ Folder Structure
 
 ```filetree
@@ -212,6 +238,33 @@ Launch Claude Code in your project root. It will read the `.claude/settings.json
 ```bash
 claude
 ```
+
+---
+
+## ⚙️ Customizing the Workflow
+
+The workflow is designed to be tuned for your project. Here are the most common adjustment points:
+
+| What to change | Where |
+| :--- | :--- |
+| **Frontend conventions** — px/rem rules, Tailwind-cluster threshold, color-token enforcement | `.claude/references/conventions.md` — the single source of truth; editing here updates all skills that reference it |
+| **px/rem & Tailwind-cluster thresholds** — the exact regex patterns and numeric limits | `.claude/hooks/post-edit.sh` — sections 3 (styling units) and 4 (repeated class clusters); adjust the regex or the `>=6` utility threshold |
+| **Enable or disable a hook** — e.g. turn off the post-edit secret scan | `.claude/settings.json` — remove or comment out the relevant hook object inside `hooks.PostToolUse`, `hooks.PreToolUse`, etc. |
+| **Add paths to the secret-file blocklist** — protect additional credential files | `.claude/settings.json` → `permissions.deny` array **and** `.claude/hooks/protect-secrets.sh` `is_secret_path()` function — both must be updated together |
+| **Add or remove MCP servers** | `.claude/settings.json` → `mcpServers` block |
+
+---
+
+## ✨ Inspiration & Credits
+
+This workflow config draws on ideas and patterns from several sources:
+
+| Source | Contribution |
+| :--- | :--- |
+| **[Andrej Karpathy](https://x.com/karpathy/status/2015883857489522876)** | The behavioral guidelines in `CLAUDE.md` — think before coding, simplicity first, surgical changes, goal-driven execution |
+| **[Matt Pocock](https://www.totaltypescript.com/)** | TypeScript-strictness patterns reflected in the conventions — no `any`, explicit prop interfaces, strict mode throughout |
+
+*Did this workflow draw on something else you recognise? Open a PR and add it here.*
 
 ---
 
