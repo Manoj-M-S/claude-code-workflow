@@ -17,20 +17,20 @@ This workflow coordinates Claude's lifecycle using **Agents** (orchestrators), *
 graph TD
     A[Start Session] -->|Hook: SessionStart| B(env-check.sh)
     B --> C{Orchestrators}
-    
+
     subgraph Task Pipeline
-        C -->|build this ticket| D[Task Planner]
-        D -->|/grill-me clarify, /task-planner| E[Implementation]
-        E -->|/tdd /component-generator| F[Local QA Verification]
+        C -->|build this ticket| D[Classify & Plan]
+        D -->|/grill-me clarify · /task-planner| E[Implement per task]
+        E -->|lightweight verify · atomic commit · repeat| F[Quality Gate & QA]
     end
-    
+
     subgraph PR Pipeline
         C -->|ship it| G[Quality Fixer Frontend]
         G -->|Hook: PostToolUse| H(post-edit.sh)
         H --> I[PR Reviewer / A11y & SEO Audit]
         I --> J[PR Raise]
     end
-    
+
     F -->|Hook: Stop| K(pre-stop.sh)
     J -->|Hook: Stop| K
     K -->|Passes| L[Session End / Code Committed]
@@ -84,7 +84,7 @@ Orchestrator agents chain multiple skills in a structured sequence to execute br
 
 ### 📋 Task Pipeline (`task-pipeline.md`)
 * **Trigger phrases:** `"build this ticket"`, `"task pipeline"`, `"implement this"`, `"start work on"`
-* **Flow:** Classifies the issue (bug/feature/refactor) → Runs `/task-planner` → Pressure-tests assumptions → Runs `/tdd` during implementation → Quality gates check.
+* **Flow:** Classifies the ticket → Uses `/grill-me` to surface ambiguities (one question at a time) → Runs `/task-planner` for a dependency-ordered task breakdown → Implements each task using `/component-generator` conventions (tests written alongside code), runs a lightweight verify, and commits atomically before moving on → Full quality gate (lint + typecheck + tests + build) → Browser QA.
 
 ### 🚀 PR Pipeline (`pr-pipeline.md`)
 * **Trigger phrases:** `"ship it"`, `"PR pipeline"`, `"full PR"`
