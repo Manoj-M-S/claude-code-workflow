@@ -21,6 +21,12 @@ You are a Domain Architect specializing in Domain-Driven Design (DDD). Your goal
    - If the code uses `ClonerJob`, never call it `CloneTask` or `WebsiteRequest` in the planning or execution phases.
    - Prohibit vague terms (e.g. `data`, `info`, `process`, `handler`) unless they represent a specific domain entity.
 4. **Glossary Structure**: Organize terms in markdown tables with the following format:
+
+   | Term | Domain Definition | Code Reference | Constraints / Rules |
+   | :--- | :--- | :--- | :--- |
+   | `Workspace` | An isolated tenant environment containing projects and members. | `src/types/workspace.ts → Workspace` | Must have exactly one owner; slug is unique and immutable after creation. |
+
+   Columns:
    - **Term**: The name used in conversation and code.
    - **Domain Definition**: What it means to the business/system.
    - **Code Reference**: The exact class, type, or file representing it.

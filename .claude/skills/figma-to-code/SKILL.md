@@ -65,27 +65,16 @@ Compare Figma specs against the project's existing design system:
 
 ### Step 3 — Generate Component Code
 
-Write the component following project conventions:
-
-1. **Match existing patterns** — Search the codebase for similar components.
-   Follow the same file structure, naming, prop patterns, and styling approach.
-2. **Use project tokens** — Every color, spacing, typography, shadow, and radius
-   value must use a token. No raw values.
-3. **Use `cn()` utility** for dynamic class composition (if available).
-4. **TypeScript strict** — Full prop interfaces, no `any`.
-5. **Accessibility** — Proper semantic HTML, ARIA attributes, keyboard support.
-6. **All states** — Implement every state from the design (hover, focus, disabled, etc.)
-7. **Responsive** — Mobile-first, matching any responsive variants in the design.
+Generate the component per the `/component-generator` skill conventions,
+using the mapped tokens from Step 2. Every color, spacing, typography,
+shadow, and radius value must resolve to a project token — no raw values.
+Implement all states from the design (hover, focus, disabled, loading,
+error) and any responsive variants.
 
 ### Step 4 — Write Tests
 
-Create a test file alongside the component:
-
-- Renders correctly with default props
-- Renders all visual states (hover, focus, disabled, loading, error)
-- Keyboard interactions work (Enter, Space, Escape, Tab)
-- Accessibility: correct roles, labels, ARIA attributes
-- Responsive: verify layout changes at breakpoints (if applicable)
+Create a test file alongside the component per the `/component-generator`
+workflow (renders, interactions, a11y, states).
 
 ### Step 5 — Report
 

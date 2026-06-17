@@ -40,6 +40,15 @@ graph TD
 
 ---
 
+## Scope & Boundaries
+
+This skill covers **unit and component tests** — the fast, deterministic inner loop. It does not replace:
+
+- **Integration / E2E tests** — use `/qa-validate` (Playwright / Chrome MCP) for full user-journey verification.
+- **Manual exploratory QA** — edge cases that emerge from real usage, not specifications.
+
+---
+
 ## Rules of Engagement
 
 1. **No Test, No Code**: You are forbidden from writing application logic unless there is a failing test requesting it.

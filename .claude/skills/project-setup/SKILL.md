@@ -1,12 +1,13 @@
 ---
 name: project-setup
 description: >-
-  Bootstrap a project's styling foundation — design tokens, Tailwind config,
-  dark mode, fonts, cn() utility, and base styles. Detects the stack
-  (Next.js/React, Tailwind v3/v4) and scaffolds everything from scratch.
-  Optionally pulls tokens from Figma MCP. Triggers on: "setup project",
-  "bootstrap styles", "initialize design tokens", "setup tailwind",
-  "project setup", "scaffold design system", or "configure styles".
+  One-time project bootstrap for the styling foundation — design tokens,
+  Tailwind config, dark mode, fonts, cn() utility, and base styles. Run once
+  at the start of a new project. Triggers on: "setup project", "bootstrap
+  styles", "initialize design tokens", "project setup", "scaffold the
+  foundation", or "first-time setup". For auditing or refactoring an
+  existing token system use `/css-design-system`; for visual/aesthetic
+  decisions use `/frontend-design`.
 ---
 
 # Project Setup
@@ -47,76 +48,40 @@ Report findings before proceeding:
 
 ### Step 2 — Scaffold Design Tokens
 
-Create the token file based on the detected stack.
+Follow the `/css-design-system` skill's three-tier token architecture
+(primitive → semantic → component). Adapt the token file to the detected
+stack:
 
-**For Tailwind v4** — Create `src/app/tokens.css` (or appropriate path):
-- Import `tailwindcss`
-- Define `@theme` block with colors (OKLCH), spacing (4px grid), typography (rem scale), radii, shadows, z-index scale, motion tokens
-- Reference the `css-design-system` skill for the full three-tier token architecture
+- **Tailwind v4** — `@theme` block in a `tokens.css` file
+- **Tailwind v3** — `tailwind.config.ts` extending theme with CSS variable references + a `:root` token file
+- **Vanilla CSS** — full `:root` block with primitives and semantic tokens
 
-**For Tailwind v3** — Create/update `tailwind.config.ts`:
-- Extend theme with semantic color names mapping to CSS variables
-- Add font families, font sizes (from tokens), z-index scale, shadows, radii
-- Create `src/styles/tokens.css` with `:root` CSS variable definitions
-
-**For vanilla CSS** — Create `src/styles/tokens.css`:
-- Full `:root` block with all primitive and semantic tokens
-- `.dark` override block
+All values must follow `.claude/references/conventions.md` (4px grid,
+rem for type, px for spacing, OKLCH/HSL colors, z-index scale).
 
 ### Step 3 — Set Up Dark Mode
 
-Add `.dark` class overrides for all semantic color tokens:
-
-```css
-.dark {
-  --color-bg-primary: var(--color-gray-950);
-  --color-text-primary: var(--color-gray-50);
-  --color-border-default: var(--color-gray-800);
-  /* ... all semantic tokens ... */
-}
-```
-
-If using Next.js, check if `next-themes` is installed. If not, suggest it.
+Add `.dark` overrides for all semantic color tokens. Override semantics
+only — never primitives. If using Next.js, check if `next-themes` is
+installed; if not, suggest it.
 
 ### Step 4 — Configure Fonts
 
-**Next.js** — Use `next/font`:
-```ts
-import { Inter } from 'next/font/google';
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-```
-
-**Other frameworks** — Add Google Fonts link with `display=swap`:
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-```
+- **Next.js** — Use `next/font` with `variable` option for the CSS custom property.
+- **Other frameworks** — Add a Google Fonts `<link>` with `display=swap`.
 
 ### Step 5 — Create cn() Utility
 
-If React/Next.js and not already present:
-
-1. Check if `clsx` and `tailwind-merge` are installed
-2. If not, tell the user to install: `pnpm add clsx tailwind-merge`
-3. Create `src/lib/utils.ts`:
-
-```ts
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
-}
-```
+If React/Next.js and `clsx` + `tailwind-merge` are not already present,
+tell the user to install them and create `src/lib/utils.ts` with the
+`cn()` function (see `/css-design-system` for the pattern).
 
 ### Step 6 — Add Base Styles
 
-Add `@layer base` with:
-- Box-sizing reset
-- Body defaults (font family, size, line-height, colors from tokens)
-- Heading styles (line-height, font-weight)
-- `prefers-reduced-motion` reset for animations
-- Scrollbar hiding utility in `@layer utilities`
+Add `@layer base` with box-sizing reset, body defaults (font, size,
+line-height, colors from tokens), heading styles, and a
+`prefers-reduced-motion` reset. Add a scrollbar-hiding utility in
+`@layer utilities`.
 
 ### Step 7 — Pull from Figma (optional)
 

@@ -1,9 +1,3 @@
----
-name: karpathy-guidelines
-description: Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
-license: MIT
----
-
 # Karpathy Guidelines
 
 Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
@@ -76,6 +70,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 These are enforced by hooks in `.claude/hooks/`, but stating them here means
 Claude follows them while writing code in the first place — so the hooks rarely
 have to fire. (Hooks are the backstop; this file is the front door.)
+
+> **Authoritative detail:** `.claude/references/conventions.md` is the single
+> source of truth for these rules. The summary below is for quick reference.
 
 ## Units & Sizing
 
@@ -155,8 +152,10 @@ recommended way to run multi-step workflows.
   Invoke with "ship it", "PR pipeline", or "full PR".
 - **SEO Audit (`seo-audit`)**: Delegates meta tags, OpenGraph, structured data,
   heading hierarchy, sitemaps, and Next.js/Svelte metadata audits.
+  *Subagent — invoked via delegation, not a `/` slash command.*
 - **A11y Audit (`a11y-audit`)**: WCAG 2.1 AA specialist. Audits components/pages
   for semantic HTML, focus management, ARIA, contrast, and keyboard accessibility.
+  *Subagent — invoked via delegation, not a `/` slash command.*
 
 ## Skills by Workflow Stage (in `.claude/skills/`)
 
@@ -207,4 +206,5 @@ Use `/model opusplan` for automatic routing, or switch manually:
 | :--- | :--- | :--- |
 | **Planning & Reasoning** | Opus | `/task-planner`, `/grill-me`, `/pr-review`, `/improve-codebase-architecture` |
 | **Implementation & Execution** | Sonnet | `/figma-to-code`, `/component-generator`, `/tdd`, `/pr-raise`, `/qa-validate` |
-| **Auditing** | Opus | `/css-design-system` audit, `/a11y-audit`, `/domain-model` |
+| **Auditing** | Opus | `/css-design-system` audit, `a11y-audit`, `/domain-model` |
+| **Lightweight / Bulk** | Haiku | Commit-message drafting, simple grep-and-replace, low-stakes summarisation |
