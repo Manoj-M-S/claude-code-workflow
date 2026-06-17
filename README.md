@@ -17,24 +17,50 @@ This workflow coordinates Claude's lifecycle using **Agents** (orchestrators), *
 graph TD
     A[Start Session] -->|Hook: SessionStart| B(env-check.sh)
     B --> C{Orchestrators}
-    
+
     subgraph Task Pipeline
-        C -->|build this ticket| D[Task Planner]
-        D -->|/grill-me /domain-model| E[Implementation]
-        E -->|/tdd /component-generator| F[Local QA Verification]
+        C -->|build this ticket| D[Classify & Plan]
+        D -->|/grill-me clarify · /task-planner| E[Implement per task]
+        E -->|lightweight verify · atomic commit · repeat| F[Quality Gate & QA]
     end
-    
+
     subgraph PR Pipeline
         C -->|ship it| G[Quality Fixer Frontend]
         G -->|Hook: PostToolUse| H(post-edit.sh)
         H --> I[PR Reviewer / A11y & SEO Audit]
         I --> J[PR Raise]
     end
-    
+
     F -->|Hook: Stop| K(pre-stop.sh)
     J -->|Hook: Stop| K
     K -->|Passes| L[Session End / Code Committed]
 ```
+
+---
+
+## 🗺️ Which Tool When?
+
+Not sure where to start? Use this table to find the right entry point for common scenarios.
+
+| Scenario | Use |
+| :--- | :--- |
+| Starting a brand-new project (tokens, dark mode, Tailwind) | `/project-setup` |
+| Building a ticket end-to-end (plan → code → quality → QA) | `task-pipeline` agent |
+| Pressure-testing a plan before writing any code | `/grill-me` |
+| Doing strict test-first Red-Green-Refactor TDD on a unit | `/tdd` *(standalone, opt-in — not a pipeline step)* |
+| Generating a single component | `/component-generator` |
+| Turning a Figma design into production code | `/figma-to-code` |
+| Auditing or refactoring an existing token system | `/css-design-system` |
+| Deciding visual direction, palette, or typography | `/frontend-design` |
+| Fixing failing lint, type errors, or broken tests | `/quality-fixer-frontend` |
+| Reviewing a PR diff for bugs, architecture, and nits | `/pr-review` |
+| Shipping — raising a pull request with full gates | `pr-pipeline` agent or `/pr-raise` |
+| Accessibility audit (WCAG 2.1 AA) | `a11y-audit` subagent |
+| SEO, meta tags, structured data audit | `seo-audit` subagent |
+| Validating a feature in a real browser | `/qa-validate` |
+| Writing QED42 blog content or content briefs | `/qed42-blog-writing` |
+| Sharpening a vague or underspecified prompt | `/prompt-optimizer` |
+| Identifying and refactoring shallow modules | `/improve-codebase-architecture` |
 
 ---
 
@@ -53,11 +79,10 @@ graph TD
 │   ├── protect-secrets.sh     # Blocks reading secret files (.env, .pem, .key, etc.)
 │   ├── post-edit.sh           # Checks files after edit/write (format, lint, conventions, secrets)
 │   └── pre-stop.sh            # Runs typechecks, tests, and duplicate scans on exit
-├── skills/                    # Domain-specific developer skills (16 slash commands)
+├── skills/                    # Domain-specific developer skills (15 slash commands)
 │   ├── tdd/                   # Enforces Red-Green-Refactor TDD flow
 │   ├── task-planner/          # Generates structured implementation plans
 │   ├── grill-me/              # Pressure-tests feature specs step-by-step
-│   ├── domain-model/          # Aligns nomenclature with GLOSSARY.md
 │   ├── css-design-system/     # Token architecture, Tailwind config, CSS audit
 │   ├── frontend-design/       # Aesthetic direction, typography, visual identity
 │   ├── project-setup/         # One-time bootstrap: tokens, dark mode, fonts, cn()
@@ -85,7 +110,7 @@ Orchestrator agents chain multiple skills in a structured sequence to execute br
 
 ### 📋 Task Pipeline (`task-pipeline.md`)
 * **Trigger phrases:** `"build this ticket"`, `"task pipeline"`, `"implement this"`, `"start work on"`
-* **Flow:** Classifies the issue (bug/feature/refactor) → Runs `/task-planner` → Pressure-tests assumptions → Runs `/tdd` during implementation → Quality gates check.
+* **Flow:** Classifies the ticket → Uses `/grill-me` to surface ambiguities (one question at a time) → Runs `/task-planner` for a dependency-ordered task breakdown → Implements each task using `/component-generator` conventions (tests written alongside code), runs a lightweight verify, and commits atomically before moving on → Full quality gate (lint + typecheck + tests + build) → Browser QA.
 
 ### 🚀 PR Pipeline (`pr-pipeline.md`)
 * **Trigger phrases:** `"ship it"`, `"PR pipeline"`, `"full PR"`
@@ -144,7 +169,6 @@ Skills are specialized tools containing detailed prompt guidelines that Claude i
 | **`/tdd`** | Enforces test-driven development cycles. | Red (write failing test) → Green (make it pass) → Refactor. |
 | **`/task-planner`** | Translates tickets to step-by-step execution plans. | Prepares test strategy, risk analysis, and Git branch structure. |
 | **`/grill-me`** | Interrogates specifications before coding. | Asks clarifying questions one-at-a-time to eliminate ambiguity. |
-| **`/domain-model`** | Coordinates a domain vocabulary. | Generates and aligns naming structures with `GLOSSARY.md`. |
 | **`/css-design-system`** | Audits/architects CSS token systems. | Three-tier tokens, Tailwind config, dark mode, audit workflow. |
 | **`/frontend-design`** | Visual/aesthetic design direction. | Palette, typography pairing, signature elements, brainstorm→critique. |
 | **`/project-setup`** | One-time project styling bootstrap. | Tokens, Tailwind config, dark mode, fonts, cn(), base styles. |
@@ -214,6 +238,33 @@ Launch Claude Code in your project root. It will read the `.claude/settings.json
 ```bash
 claude
 ```
+
+---
+
+## ⚙️ Customizing the Workflow
+
+The workflow is designed to be tuned for your project. Here are the most common adjustment points:
+
+| What to change | Where |
+| :--- | :--- |
+| **Frontend conventions** — px/rem rules, Tailwind-cluster threshold, color-token enforcement | `.claude/references/conventions.md` — the single source of truth; editing here updates all skills that reference it |
+| **px/rem & Tailwind-cluster thresholds** — the exact regex patterns and numeric limits | `.claude/hooks/post-edit.sh` — sections 3 (styling units) and 4 (repeated class clusters); adjust the regex or the `>=6` utility threshold |
+| **Enable or disable a hook** — e.g. turn off the post-edit secret scan | `.claude/settings.json` — remove or comment out the relevant hook object inside `hooks.PostToolUse`, `hooks.PreToolUse`, etc. |
+| **Add paths to the secret-file blocklist** — protect additional credential files | `.claude/settings.json` → `permissions.deny` array **and** `.claude/hooks/protect-secrets.sh` `is_secret_path()` function — both must be updated together |
+| **Add or remove MCP servers** | `.claude/settings.json` → `mcpServers` block |
+
+---
+
+## ✨ Inspiration & Credits
+
+This workflow config draws on ideas and patterns from several sources:
+
+| Source | Contribution |
+| :--- | :--- |
+| **[Andrej Karpathy](https://x.com/karpathy/status/2015883857489522876)** | The behavioral guidelines in `CLAUDE.md` — think before coding, simplicity first, surgical changes, goal-driven execution |
+| **[Matt Pocock](https://www.totaltypescript.com/)** | TypeScript-strictness patterns reflected in the conventions — no `any`, explicit prop interfaces, strict mode throughout |
+
+*Did this workflow draw on something else you recognise? Open a PR and add it here.*
 
 ---
 

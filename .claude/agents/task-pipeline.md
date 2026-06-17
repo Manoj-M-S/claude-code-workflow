@@ -28,9 +28,10 @@ to retry.
 
 ```
 Step 0 ── Classify Ticket        (What kind of work is this?)
-Step 1 ── Plan                   (What needs to be built, where, and how?)
-Step 2 ── Implement              (Build the actual code)
-Step 3 ── Quality Gate           (Lint, type-check, tests, build — all green?)
+Step 1 ── Plan & Clarify         (Grill ambiguities → task breakdown → user approval)
+Step 2 ── Implement              (Build each task → verify → commit, repeat)
+            └─ Per task:  implement → lightweight verify → atomic commit
+Step 3 ── Quality Gate           (Full lint + typecheck + test suite + build)
 Step 4 ── QA Validation          (Does it actually work in the browser?) [conditional]
 ```
 
@@ -71,11 +72,12 @@ Proceed to Step 1.
 
 ---
 
-### Step 1 — Plan
+### Step 1 — Plan & Clarify
 
-**Purpose:** Understand what needs to be built, where it lives in the codebase,
-and what the implementation order should be. This uses the `task-planner` skill
-workflow.
+**Purpose:** Surface ambiguities, understand what needs to be built, where it
+lives in the codebase, and what the implementation order should be. This uses
+the `grill-me` skill protocol for clarification and the `task-planner` skill
+workflow for the breakdown.
 
 **How (adapted by ticket type):**
 
@@ -97,10 +99,28 @@ workflow.
 
 #### For ✨ Feature / ♻️ Refactor / 🧹 Chore — Full Plan
 
+**0. Clarify first (Feature or large/ambiguous work):**
+
+Before breaking down tasks, surface unclear requirements using the `grill-me`
+skill protocol — one high-impact question per turn, each paired with a
+recommended default:
+
+> "My recommendation is [X] because [Y]. Does this fit, or do you have another
+> preference?"
+
+Walk the design tree in order: architecture & scope → data & state →
+edge cases & failure modes → API contracts & interfaces. Search the codebase
+before asking — only surface questions that cannot be inferred from existing
+code. Stop when all critical branches are resolved and the intent is
+unambiguous.
+
+For refactors and chores with clear scope, a single quick clarification pass
+is usually sufficient. Skip this sub-step for small, well-specified features
+with unambiguous acceptance criteria.
+
 Execute the `task-planner` skill workflow:
 
 1. **Extract requirements** — Parse acceptance criteria from the ticket.
-   If requirements are vague or missing, ask the user to clarify (do not invent).
 2. **Codebase impact analysis** — Search the codebase to find:
    - Existing code to reuse or extend
    - Files to create
@@ -112,6 +132,8 @@ Execute the `task-planner` skill workflow:
 4. **Task breakdown** — Break work into ordered tasks (dependency-aware).
    Each task should be completable in one focused session.
 5. **Test plan** — Outline what needs to be tested (unit, integration, edge cases).
+6. **Git strategy** — Name the branch and list the planned Conventional Commit
+   messages for each task (these become the per-task commit messages in Step 2).
 
 Present the plan and **pause for user approval**:
 
@@ -126,7 +148,8 @@ Present the plan and **pause for user approval**:
 ### Step 2 — Implement
 
 **Purpose:** Build the actual code, following the plan from Step 1. Use the
-appropriate skills based on what needs to be built.
+appropriate skills based on what needs to be built. After each task, run a
+lightweight verification and commit before moving on.
 
 **How:**
 
@@ -157,21 +180,44 @@ most appropriate approach:
 
 **Implementation rules:**
 - Follow the order from the task breakdown — dependencies first.
-- After completing each task in the breakdown, briefly report what was done.
 - If you hit an ambiguity the plan didn't cover, ask the user — don't guess.
 - Never leave TODOs, stubs, or placeholder implementations.
+
+**Per-task commit discipline:**
+
+After implementing each task in the breakdown, verify and commit it before
+moving to the next:
+
+1. **Verify (lightweight):** Run typecheck, the tests that cover this task,
+   and lint/format on the changed files only. Do NOT run a full build per task —
+   that is Step 3's job.
+2. **Fix first:** If verification fails, fix the issue before committing.
+   Never commit broken work.
+3. **Commit:** Write a Conventional Commit message derived from the task:
+   - `feat(auth): add useResetPassword hook`
+   - `test(auth): cover invalid-email path`
+   - `fix(dropdown): keep open on inside click`
+4. **Granularity:** One logical working unit per commit — never per file, and
+   never one giant end-of-ticket commit. If a task is too large for one commit,
+   break it into smaller sub-tasks.
+5. **Branch:** Commit onto the branch named in Step 1's git strategy.
+   **Never push and never open a PR** — that is `pr-pipeline`'s job.
+
+Step 3 runs once at the end as the comprehensive gate (full lint + typecheck +
+full test suite + build) to catch cross-task integration issues that
+per-task checks cannot see.
 
 Report progress as you go:
 
 ```markdown
 ## Step 2: Implementation Progress
 
-| # | Task | Status |
-| :--- | :--- | :--- |
-| 1 | Add TypeScript types | ✅ Done |
-| 2 | Add API methods | ✅ Done |
-| 3 | Create useResetPassword hook | 🔄 In progress |
-| 4 | Build ResetPasswordForm | ⬜ Pending |
+| # | Task | Status | Commit |
+| :--- | :--- | :--- | :--- |
+| 1 | Add TypeScript types | ✅ Done | `feat(types): add password reset API types` |
+| 2 | Add API methods | ✅ Done | `feat(api): add reset password API methods` |
+| 3 | Create useResetPassword hook | 🔄 In progress | — |
+| 4 | Build ResetPasswordForm | ⬜ Pending | — |
 ```
 
 **When all tasks are complete:** Proceed to Step 3.
@@ -264,8 +310,8 @@ After all steps complete, present a summary:
 | Step | Status |
 | :--- | :--- |
 | 0. Classification | ✨ Feature (large) — full pipeline |
-| 1. Plan | ✅ Approved — 6 tasks identified |
-| 2. Implementation | ✅ Complete — 6/6 tasks done |
+| 1. Plan & Clarify | ✅ Approved — 6 tasks identified |
+| 2. Implementation | ✅ Complete — 6/6 tasks done, 6 commits |
 | 3. Quality Gate | ✅ Approved — lint, types, tests, build all green |
 | 4. QA Validation | ✅ 4/4 criteria passed |
 
@@ -279,6 +325,14 @@ After all steps complete, present a summary:
 ### Files Modified
 - `src/lib/api.ts` — Added reset password methods
 - `src/types/auth.ts` — Added ResetPasswordRequest type
+
+### Commits
+1. `feat(types): add password reset API types`
+2. `feat(api): add reset password API methods`
+3. `feat(auth): add useResetPassword hook`
+4. `feat(auth): add ResetPasswordForm component`
+5. `feat(auth): add reset password page and routing`
+6. `test(auth): add reset password tests`
 
 **Next step:** Run `pr-pipeline` to ship it.
 ```
@@ -300,3 +354,10 @@ After all steps complete, present a summary:
   is ambiguous, ask. The pipeline enforces discipline — guessing defeats it.
 - **Prefer existing patterns.** Always search the codebase before creating
   something new. Reuse components, hooks, utilities, and conventions.
+- **Commit per logical task, never per file and never all at once.** One task
+  in the breakdown = one commit. If a task is too large for a single commit,
+  break it into smaller sub-tasks first.
+- **Every commit must be green.** Typecheck, task-scoped tests, and lint all
+  pass before committing. Fix first, then commit.
+- **Never push or open a PR — that is `pr-pipeline`'s job.** Commits stay
+  local until the user runs `pr-pipeline`.
