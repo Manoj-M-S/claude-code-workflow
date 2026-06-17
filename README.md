@@ -20,7 +20,7 @@ graph TD
     
     subgraph Task Pipeline
         C -->|build this ticket| D[Task Planner]
-        D -->|/grill-me /domain-model| E[Implementation]
+        D -->|/grill-me clarify, /task-planner| E[Implementation]
         E -->|/tdd /component-generator| F[Local QA Verification]
     end
     
@@ -53,11 +53,10 @@ graph TD
 │   ├── protect-secrets.sh     # Blocks reading secret files (.env, .pem, .key, etc.)
 │   ├── post-edit.sh           # Checks files after edit/write (format, lint, conventions, secrets)
 │   └── pre-stop.sh            # Runs typechecks, tests, and duplicate scans on exit
-├── skills/                    # Domain-specific developer skills (16 slash commands)
+├── skills/                    # Domain-specific developer skills (15 slash commands)
 │   ├── tdd/                   # Enforces Red-Green-Refactor TDD flow
 │   ├── task-planner/          # Generates structured implementation plans
 │   ├── grill-me/              # Pressure-tests feature specs step-by-step
-│   ├── domain-model/          # Aligns nomenclature with GLOSSARY.md
 │   ├── css-design-system/     # Token architecture, Tailwind config, CSS audit
 │   ├── frontend-design/       # Aesthetic direction, typography, visual identity
 │   ├── project-setup/         # One-time bootstrap: tokens, dark mode, fonts, cn()
@@ -144,7 +143,6 @@ Skills are specialized tools containing detailed prompt guidelines that Claude i
 | **`/tdd`** | Enforces test-driven development cycles. | Red (write failing test) → Green (make it pass) → Refactor. |
 | **`/task-planner`** | Translates tickets to step-by-step execution plans. | Prepares test strategy, risk analysis, and Git branch structure. |
 | **`/grill-me`** | Interrogates specifications before coding. | Asks clarifying questions one-at-a-time to eliminate ambiguity. |
-| **`/domain-model`** | Coordinates a domain vocabulary. | Generates and aligns naming structures with `GLOSSARY.md`. |
 | **`/css-design-system`** | Audits/architects CSS token systems. | Three-tier tokens, Tailwind config, dark mode, audit workflow. |
 | **`/frontend-design`** | Visual/aesthetic design direction. | Palette, typography pairing, signature elements, brainstorm→critique. |
 | **`/project-setup`** | One-time project styling bootstrap. | Tokens, Tailwind config, dark mode, fonts, cn(), base styles. |

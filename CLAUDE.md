@@ -162,7 +162,6 @@ recommended way to run multi-step workflows.
 ### Planning & Design
 - **Task Planner (`/task-planner`)**: JIRA ticket → structured implementation plan. Extracts requirements, analyzes codebase impact, creates task breakdown, test plan, risk assessment, and git strategy. Uses Atlassian MCP for ticket data, Figma MCP for design specs.
 - **Grill Me (`/grill-me`)**: Pressure-tests feature specs before writing code. One question at a time, walks the design decision tree.
-- **Domain Model (`/domain-model`)**: Establishes shared vocabulary via `GLOSSARY.md`. Scans codebase to align naming.
 - **Frontend Design & UX (`/frontend-design`)**: Aesthetic direction, typography, layout, interactive polish, responsive execution, and UX quality checklists.
 
 ### Setup & Scaffolding
@@ -206,5 +205,5 @@ Use `/model opusplan` for automatic routing, or switch manually:
 | :--- | :--- | :--- |
 | **Planning & Reasoning** | Opus | `/task-planner`, `/grill-me`, `/pr-review`, `/improve-codebase-architecture` |
 | **Implementation & Execution** | Sonnet | `/figma-to-code`, `/component-generator`, `/tdd`, `/pr-raise`, `/qa-validate` |
-| **Auditing** | Opus | `/css-design-system` audit, `a11y-audit`, `/domain-model` |
+| **Auditing** | Opus | `/css-design-system` audit, `a11y-audit` |
 | **Lightweight / Bulk** | Haiku | Commit-message drafting, simple grep-and-replace, low-stakes summarisation |
