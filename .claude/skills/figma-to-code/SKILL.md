@@ -1,12 +1,13 @@
 ---
 name: figma-to-code
 description: >-
-  Read a Figma design frame or component via Figma MCP and generate
-  production-ready React/Next.js code that matches the project's existing
-  design system and conventions. Maps Figma tokens to project tokens, flags
-  gaps, and creates test files. Triggers on: "figma to code", "implement
-  this design", "code this Figma", "build from Figma", "convert design",
-  "match the Figma", or when a Figma URL is shared with implementation intent.
+  Read a Figma design frame or component via Figma MCP and generate component
+  code that matches the project's existing design system and conventions. Maps
+  Figma tokens to project tokens and flags gaps. Defaults to a lightweight
+  Replicate/Preview mode; escalates to Production Integration only on an
+  explicit signal. Triggers on: "figma to code", "implement this design",
+  "code this Figma", "build from Figma", "convert design", "match the Figma",
+  or when a Figma URL is shared with implementation intent.
 ---
 
 # Figma to Code
@@ -17,6 +18,39 @@ specs from Figma and map them to the project's existing token system.
 
 **Requires:** Figma MCP connected. If not available, ask the user to install:
 `claude plugin install figma@claude-plugins-official`
+
+---
+
+## Mode Decision — Do This First
+
+Before reading the design, determine the active mode:
+
+| Signal | Mode |
+| :--- | :--- |
+| Bare request — "replicate this", "build this design", "turn this into a component" — with no production signal | **Replicate / Preview** *(default)* |
+| User says it's going into a production/existing app | **Production Integration** |
+| User mentions CI, tests, or asks for tests/a11y explicitly | **Production Integration** |
+| Target project already has a test runner AND a11y tooling configured | **Production Integration** |
+
+**Default to Replicate/Preview** unless a production signal is present.
+
+**Special case:** If the request is bare but the project already has test
+infrastructure (a vitest/jest config or existing `*.test.*` files), stay in
+Replicate/Preview mode. After the report, offer the extras:
+
+> "Project has vitest set up — want me to add tests and an a11y pass?"
+
+State the active mode at the top of the final report.
+
+### Replicate / Preview (default)
+Read design → map tokens → generate component → **one lightweight visual check** → report.
+No unit tests, no a11y-audit, no multi-tool browser verification matrix, and — critically —
+**never any test-framework setup**.
+
+### Production Integration
+All of the above, plus: tests (per the `component-generator` gating rules — only if runner
+exists AND the component has meaningful behavior), `a11y-audit` subagent, and the fuller
+verification pass.
 
 ---
 
@@ -71,19 +105,33 @@ shadow, and radius value must resolve to a project token — no raw values.
 Implement all states from the design (hover, focus, disabled, loading,
 error) and any responsive variants.
 
-### Step 4 — Write Tests
+### Step 4 — Verify
 
-Create a test file alongside the component per the `/component-generator`
-workflow (renders, interactions, a11y, states).
+**Replicate / Preview mode:**
+Take one lightweight visual check — a single screenshot or DOM snapshot
+compared to the Figma reference. Confirm the component renders without
+errors and the key visual properties (layout, spacing, colors, typography)
+match the spec. Report any discrepancies. This is the only verification step
+in this mode.
+
+**Production Integration mode:**
+1. **Tests** — Per the `component-generator` gating rules: only if the project
+   already has a test runner AND the component has meaningful behavior (state
+   logic, conditional rendering, callbacks). Never install or configure a test
+   framework.
+2. **A11y** — Delegate an `a11y-audit` pass on the component.
+3. **Fuller verification** — Cross-browser DOM snapshot, interaction states,
+   responsive spot-check at 375px / 768px / 1024px.
 
 ### Step 5 — Report
 
 ```markdown
 ## Figma → Code: [Component Name]
 
+**Mode:** Replicate / Preview  *(or: Production Integration)*
+
 ### Files Created
 - `src/components/[name]/[Name].tsx` — Component implementation
-- `src/components/[name]/[Name].test.tsx` — Tests
 
 ### Token Mapping
 | Figma spec | → Project token |
@@ -101,9 +149,11 @@ workflow (renders, interactions, a11y, states).
 ✅ Default ✅ Hover ✅ Focus ✅ Active ✅ Disabled ✅ Loading ✅ Error
 
 ### Verification
-- Run `pnpm run typecheck` → ✅
-- Run tests → ✅
+- Visual check vs Figma reference → ✅ Layout, spacing, and colors match
 ```
+
+For Production Integration mode, extend the report with test files, a11y
+findings, and the fuller verification results.
 
 ---
 
@@ -114,3 +164,4 @@ workflow (renders, interactions, a11y, states).
 - **Ask about ambiguity.** If the Figma design doesn't specify a state (e.g., no error state shown), ask rather than inventing one.
 - **Don't over-build.** Implement exactly what the design shows. No speculative features.
 - **Flag design system conflicts.** If Figma uses tokens/values that conflict with the project's system, raise it — don't silently pick one.
+- **Effort proportional to the ask.** A bare "replicate this" is not a production ticket — default to Replicate/Preview and do not auto-escalate to test generation, a11y audits, or tooling setup. See the scope-proportionality principle in `CLAUDE.md`.
