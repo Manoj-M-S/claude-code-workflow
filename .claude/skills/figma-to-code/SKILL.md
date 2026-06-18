@@ -5,9 +5,14 @@ description: >-
   code that matches the project's existing design system and conventions. Maps
   Figma tokens to project tokens and flags gaps. Defaults to a lightweight
   Replicate/Preview mode; escalates to Production Integration only on an
-  explicit signal. Triggers on: "figma to code", "implement this design",
-  "code this Figma", "build from Figma", "convert design", "match the Figma",
-  or when a Figma URL is shared with implementation intent.
+  explicit signal. ALWAYS invoke this skill when converting any Figma design
+  or URL into code — including brief requests like "just replicate this
+  design", "copy this Figma", or "turn this into a component". Do not
+  freehand the conversion from memory; the skill's approval gate and
+  structured report are required. Triggers on: "figma to code", "implement
+  this design", "code this Figma", "build from Figma", "convert design",
+  "match the Figma", "replicate this design", "replicate this", or when a
+  Figma URL is shared with implementation intent.
 ---
 
 # Figma to Code

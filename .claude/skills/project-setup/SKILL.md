@@ -3,11 +3,14 @@ name: project-setup
 description: >-
   One-time project bootstrap for the styling foundation — design tokens,
   Tailwind config, dark mode, fonts, cn() utility, and base styles. Run once
-  at the start of a new project. Triggers on: "setup project", "bootstrap
-  styles", "initialize design tokens", "project setup", "scaffold the
-  foundation", or "first-time setup". For auditing or refactoring an
-  existing token system use `/css-design-system`; for visual/aesthetic
-  decisions use `/frontend-design`.
+  at the start of a new project. ALWAYS invoke this skill when starting or
+  scaffolding a new project's styling foundation — even for a quick
+  prototype. Triggers on: "setup project", "bootstrap styles", "initialize
+  design tokens", "project setup", "scaffold the foundation", "first-time
+  setup", "start a new project", "new project", or when the user is
+  beginning a greenfield project that needs a styling foundation. For
+  auditing or refactoring an existing token system use `/css-design-system`;
+  for visual/aesthetic decisions use `/frontend-design`.
 ---
 
 # Project Setup

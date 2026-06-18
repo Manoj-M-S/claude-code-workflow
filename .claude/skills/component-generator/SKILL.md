@@ -4,9 +4,12 @@ description: >-
   Generate accessible, responsive, and highly polished React (Next.js) or Svelte
   components following the project's styling guidelines. Writes tests alongside
   the component when the project already has a test runner AND the component has
-  meaningful behavior. Trigger this skill whenever the user asks to "create a
+  meaningful behavior. ALWAYS invoke this skill when creating a UI component —
+  including simple ones like a button or card. Triggers on: "create a
   component", "build a UI component", "add a button/modal/card", "write a
-  component", or "create a svelte/react component".
+  component", "create a svelte/react component", "make a component for",
+  "scaffold a component", or any request to generate a new React or Svelte
+  component.
 ---
 
 # Component Generator

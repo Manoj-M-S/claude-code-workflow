@@ -1,9 +1,15 @@
 ---
 name: grill-me
 description: >-
-  Interview the user relentlessly about every aspect of a plan or feature before writing any code.
-  Ensures a shared design concept is reached, walking down the design tree and resolving dependencies one by one.
-  Triggers on: "grill me", "interview me", "pressure test my plan", "plan a feature", "critique my design".
+  Interview the user relentlessly about every aspect of a plan or feature
+  before writing any code. Ensures a shared design concept is reached,
+  walking down the design tree and resolving dependencies one by one. ALWAYS
+  invoke this skill when a plan, prop/API design, or requirements should be
+  pressure-tested before coding — even if the scope looks small. Triggers
+  on: "grill me", "interview me", "pressure test my plan", "plan a feature",
+  "critique my design", "review my approach", "challenge this", "poke holes
+  in this", or when the user shares a plan or spec and asks for feedback
+  before implementation.
 ---
 
 # Grill Me

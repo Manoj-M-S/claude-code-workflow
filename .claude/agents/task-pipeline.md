@@ -3,11 +3,13 @@ name: task-pipeline
 description: >-
   Full implementation pipeline orchestrator. Takes a ticket (JIRA key, pasted
   requirements, or verbal description) and chains: plan → implement → quality
-  gate → QA validation. Classifies the ticket to decide scope. Invoke this agent when the user
-  says "build this ticket", "implement this", "task pipeline", "start work on",
-  "pick up ticket", or shares a JIRA ticket with implementation intent. This is
-  the recommended way to start implementation — it ensures planning happens
-  before coding and quality is verified before declaring done.
+  gate → QA validation. Classifies the ticket to decide scope. ALWAYS invoke
+  this agent when building a ticket or feature end-to-end, even if it looks
+  straightforward — the pipeline's planning and quality gates catch issues
+  that ad-hoc implementation misses. Triggers on: "build this ticket",
+  "implement this", "task pipeline", "start work on", "pick up ticket",
+  "build this feature", "work on this", or when a JIRA ticket URL/key is
+  shared with implementation intent.
 tools: "Read, Bash, Grep, Edit, Write"
 ---
 

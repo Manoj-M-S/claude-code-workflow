@@ -4,9 +4,12 @@ description: >-
   Validate that a feature meets its acceptance criteria by interacting with
   the running application via Playwright MCP. Defaults to a Smoke-check tier
   (page loads, key elements render, a handful of computed styles) and escalates
-  to Full-acceptance only on an explicit signal. Triggers on: "QA this",
-  "validate the ticket", "acceptance test", "qa validate", "verify
-  implementation", or "check if everything works".
+  to Full-acceptance only on an explicit signal. ALWAYS invoke this skill
+  when verifying rendered output in a browser — including quick "does it
+  look right?" checks. Triggers on: "QA this", "validate the ticket",
+  "acceptance test", "qa validate", "verify implementation", "check if
+  everything works", "test in the browser", "verify in browser", or when
+  the user asks to confirm a feature works visually.
 ---
 
 # QA Validate
