@@ -73,7 +73,11 @@ Before running heavy ceremony, perform a one-line scope self-check:
 
 > "What is the smallest output that fully satisfies this request?"
 
-Do not add tests, verification layers, audits, or tooling the request did not call for and the project does not already have. A one-off "replicate this" is not a production ticket. This is the same instinct behind `task-pipeline`'s Step 0 scope classification and behind `/tdd` being an opt-in skill rather than a pipeline step.
+Do not add tests, verification layers, audits, or tooling the request did not call for and the project does not already have. This is the same instinct behind `task-pipeline`'s Step 0 scope classification and behind `/tdd` being an opt-in skill rather than a pipeline step.
+
+**What proportionality trims:** speculative features, tests / verification depth, and tooling the request did not call for.
+
+**What proportionality does NOT trim:** (i) invoking the matching skill (see §6), or (ii) that skill's human-input checkpoints — approval gates and structured reports. Cheap, high-value gates — like a token-mapping approval table — are never "ceremony."
 
 **Cascade-escalation stop:** If environment or tooling setup starts thrashing — more than **2 consecutive dependency version changes** (downgrades, pins, or reinstalls) to resolve install or type conflicts — STOP immediately. Report what conflicts, present the options to the human, and wait. Do not brute-force more rounds.
 
@@ -83,6 +87,47 @@ Do not add tests, verification layers, audits, or tooling the request did not ca
 - **`/qa-validate`** — Smoke check (default) vs Full acceptance.
 
 **Full-by-nature skills** (inherit this principle but do NOT get a bespoke light/full mode toggle — thoroughness is their purpose or their depth is determined by their input, not by a mode flag): `/project-setup`, `a11y-audit`, `seo-audit`, `/pr-raise`, `/pr-review`, `/quality-fixer-frontend`. Do not add mode switches to these.
+
+## 6. Skill Invocation
+
+**When a task matches a skill's domain, invoke the skill — don't freehand it from memory.**
+
+Reproducing a skill's output from memory or a previous session bypasses its
+checkpoints — approval gates, structured reports, human-in-the-loop stops —
+which are the reason the skill exists. The knowledge is not the value; the
+gates are.
+
+- **Invoke the matching skill** even for tasks that seem simple or that you
+  could do faster without it. Brief requests ("just replicate this design")
+  still go through the skill.
+- **Honor every skill's checkpoints** — approval gates and structured reports —
+  in every mode, including the skill's lightweight/preview tier.
+- **Reproducing a skill's output without running its checkpoints is a defect,
+  not efficiency.**
+
+### Quick routing — common task → skill
+
+| Task | Skill |
+| :--- | :--- |
+| Figma design / URL → code | `/figma-to-code` |
+| Build a ticket or feature end-to-end | `task-pipeline` agent |
+| Pressure-test a plan, API design, or requirements | `/grill-me` |
+| Create a React / Svelte component | `/component-generator` |
+| Scaffold a new project (tokens, Tailwind, dark mode) | `/project-setup` |
+| Verify rendered output in a browser | `/qa-validate` |
+
+See the [README "Which Tool When" table](README.md#-which-tool-when) for the
+full list.
+
+### Relationship to Proportionality
+
+> Proportionality (§5) decides **how much** you build; Skill Invocation (§6)
+> decides that you still **go through the skill and its gates** to build it.
+
+The two are complementary, not competing. A skill's lightweight mode already
+embodies proportionality — it trims depth (tests, a11y, verification) while
+preserving the gates. Never use proportionality as a reason to skip invoking
+a skill or to bypass its approval checkpoints.
 
 # Project conventions
 
