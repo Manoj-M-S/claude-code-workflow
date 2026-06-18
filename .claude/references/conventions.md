@@ -17,6 +17,7 @@ automatically. When in doubt, this file wins.
 - **Tailwind arbitrary values**:
   - For spacing: prefer `px` (e.g. `p-[16px]`, `m-[24px]`, `w-[320px]`).
   - For typography: prefer `rem` (e.g. `text-[1rem]`, `text-[1.25rem]`).
+  - **`text-[var(--x)]` is banned** — Tailwind v4 cannot disambiguate font-size vs color from a bare CSS variable and defaults to color, silently dropping the font-size. Prefer mapping design tokens into the Tailwind theme so named utilities (`text-lg`, `text-heading`) are available. When an arbitrary `text-` value referencing a CSS variable is unavoidable, it MUST carry a type hint: `text-[length:var(--x)]` for size, `text-[color:var(--x)]` for color.
 
 ## Design Tokens & Theming
 
