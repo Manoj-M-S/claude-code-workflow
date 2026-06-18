@@ -2,11 +2,11 @@
 name: qa-validate
 description: >-
   Validate that a feature meets its acceptance criteria by interacting with
-  the running application via Playwright MCP. Navigates the app, tests each
-  criterion, checks accessibility, and produces a QA report. Optionally posts
-  results back to JIRA. Triggers on: "QA this", "validate the ticket",
-  "acceptance test", "qa validate", "verify implementation", or "check if
-  everything works".
+  the running application via Playwright MCP. Defaults to a Smoke-check tier
+  (page loads, key elements render, a handful of computed styles) and escalates
+  to Full-acceptance only on an explicit signal. Triggers on: "QA this",
+  "validate the ticket", "acceptance test", "qa validate", "verify
+  implementation", or "check if everything works".
 ---
 
 # QA Validate
@@ -17,6 +17,26 @@ navigating, clicking, filling forms, and observing results — the way a real
 user would.
 
 You use **Playwright MCP** or **Chrome MCP** (or browser tools) to interact with the browser, and **Atlassian MCP** (if available) to read tickets and post results.
+
+---
+
+## Tier Decision — Do This First
+
+| Signal | Tier |
+| :--- | :--- |
+| Bare "QA this" / "verify it works" / "check it" | **Smoke check** *(default)* |
+| "Thorough QA", "full acceptance test", pre-release, or production-deploy context | **Full acceptance** |
+
+**Default to Smoke check.** State the active tier at the top of the report.
+
+### Smoke Check (default)
+Load the page, confirm it renders without errors, verify the key elements/DOM
+structure present, and check the handful of computed styles that matter for
+this ticket. Targeted assertions — not an exhaustive matrix.
+
+### Full Acceptance
+The comprehensive pass: navigate all criteria, full a11y quick-check, full
+responsive spot-check at 375px / 768px / 1024px, and cross-state verification.
 
 ---
 
@@ -50,7 +70,12 @@ List them before starting:
 
 ### Step 2 — Navigate & Test Each Criterion
 
-For each criterion, use Playwright MCP to:
+**Smoke check:** For each criterion, load the relevant page, confirm it renders
+without browser errors, verify the key elements are present via DOM snapshot,
+and check the computed styles that matter. A targeted DOM snapshot is preferred
+over a full screenshot — more reliable, faster, and sufficient for most checks.
+
+**Full acceptance:** For each criterion, use Playwright MCP to:
 
 1. **Navigate** to the relevant page
 2. **Interact** — Click, fill inputs, submit forms
@@ -59,7 +84,7 @@ For each criterion, use Playwright MCP to:
 
 Use **accessibility snapshots** (structured DOM) over screenshots — more reliable for assertions. Screenshots only for visual layout checks.
 
-### Step 3 — Accessibility Quick-Check
+### Step 3 — Accessibility Quick-Check *(Full acceptance only)*
 
 While testing, also check:
 - Heading hierarchy — exactly one `<h1>`, sequential levels
@@ -67,9 +92,9 @@ While testing, also check:
 - Focus management — focus moves appropriately after actions
 - ARIA states — loading/error states announced to screen readers
 
-This is a quick check, NOT a full audit (use `/a11y-audit` for that).
+This is a quick check, NOT a full audit (use `a11y-audit` subagent for that).
 
-### Step 4 — Responsive Spot-Check
+### Step 4 — Responsive Spot-Check *(Full acceptance only)*
 
 If criteria involve layout, test at:
 - **Mobile (375px)** — Layout stacks, touch targets ≥ 44px
@@ -82,6 +107,7 @@ If criteria involve layout, test at:
 ## QA Validation Report
 
 **Ticket:** ENG-123 — Password Reset Flow
+**Tier:** Smoke check  *(or: Full acceptance)*
 **Tested on:** http://localhost:3000
 
 ### Results
@@ -93,7 +119,7 @@ If criteria involve layout, test at:
 | 3 | Loading spinner | ❌ Fail | No loading indicator visible |
 | 4 | Success message | ✅ Pass | "Check your email" displayed |
 
-### Accessibility Notes
+### Accessibility Notes *(Full acceptance only)*
 - ⚠️ Error message not linked via `aria-describedby`
 - ✅ Heading hierarchy correct
 
@@ -123,9 +149,13 @@ Ask before posting: "Should I post this report as a comment on ENG-123?"
 - **Browser MCP unavailable** — If neither Playwright nor Chrome MCP is available, output a manual verification checklist instead
 - **Can't test criterion** (e.g., email delivery) — Mark as "⏭️ Cannot verify" with explanation
 
+---
+
 ## Guardrails
 
 - **Don't modify code.** Only test — never edit source files.
 - **Don't skip criteria.** Test every one, even if earlier ones failed.
 - **Be precise.** "Submit button has no loading state" not "doesn't work."
 - **Don't fabricate.** If you can't test it, say so explicitly.
+- **Cap tool retries at 2.** If a verification tool fails repeatedly (e.g. screenshots time out, Playwright hangs), switch to a cheaper signal — DOM snapshot, `evaluate` for computed styles, or a curl of the rendered HTML — and move on. Do not keep retrying the same failing tool. Report the limitation in the QA report.
+- **Effort proportional to the ask.** Default to Smoke check; reserve Full acceptance for explicit requests or pre-release contexts. See the scope-proportionality principle in `CLAUDE.md`.

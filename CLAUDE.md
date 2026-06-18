@@ -65,6 +65,25 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. Effort Proportional to the Ask
+
+**This principle binds every skill and agent in this workflow.**
+
+Before running heavy ceremony, perform a one-line scope self-check:
+
+> "What is the smallest output that fully satisfies this request?"
+
+Do not add tests, verification layers, audits, or tooling the request did not call for and the project does not already have. A one-off "replicate this" is not a production ticket. This is the same instinct behind `task-pipeline`'s Step 0 scope classification and behind `/tdd` being an opt-in skill rather than a pipeline step.
+
+**Cascade-escalation stop:** If environment or tooling setup starts thrashing — more than **2 consecutive dependency version changes** (downgrades, pins, or reinstalls) to resolve install or type conflicts — STOP immediately. Report what conflicts, present the options to the human, and wait. Do not brute-force more rounds.
+
+**Skills with explicit scope tiers** (real over-run variance warrants a named mode toggle):
+- **`/figma-to-code`** — Replicate/Preview (default) vs Production Integration.
+- **`/component-generator`** — conditional test generation gated on runner + behavior.
+- **`/qa-validate`** — Smoke check (default) vs Full acceptance.
+
+**Full-by-nature skills** (inherit this principle but do NOT get a bespoke light/full mode toggle — thoroughness is their purpose or their depth is determined by their input, not by a mode flag): `/project-setup`, `a11y-audit`, `seo-audit`, `/pr-raise`, `/pr-review`, `/quality-fixer-frontend`. Do not add mode switches to these.
+
 # Project conventions
 
 These are enforced by hooks in `.claude/hooks/`, but stating them here means

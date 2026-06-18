@@ -279,6 +279,37 @@ case "$ext" in
     ;;
 esac
 
+# --- 10. Tailwind v4 ambiguous text-[var(--x)] --------------------------------
+# In Tailwind v4, `text-[var(--x)]` is ambiguous (font-size vs color) and
+# silently defaults to color, dropping font-size. Require a type hint:
+#   text-[length:var(--x)]  — for font-size
+#   text-[color:var(--x)]   — for color
+# OR map the token into the Tailwind theme and use a named utility instead.
+case "$ext" in
+  tsx|jsx|html|vue|svelte)
+    twv4hits="$(node -e '
+      const fs=require("fs");const f=process.argv[1];let s="";
+      try{s=fs.readFileSync(f,"utf8")}catch(e){process.exit(0)}
+      const lines=s.split(/\n/),out=[];
+      lines.forEach((ln,i)=>{
+        const trimmed=ln.trim();
+        if(trimmed.startsWith("//")||trimmed.startsWith("*")||trimmed.startsWith("/*")) return;
+        // Match text-[var(--...)] or text-[--...] (Tailwind v4 bare-var shorthand)
+        // but NOT text-[length:...], text-[color:...], or text-[number:...]
+        const re=/\btext-\[(?!(?:length|color|number):)(var\(--|--)[^\]]+\]/g;
+        let m;
+        while((m=re.exec(ln))){
+          out.push("  line "+(i+1)+": Ambiguous `"+m[0]+"` — Tailwind v4 cannot tell font-size from color and defaults to color, silently dropping font-size. Fix: use `text-[length:var(--x)]` for size or `text-[color:var(--x)]` for color, or map the token into your Tailwind theme (e.g. `text-lg`).");
+        }
+      });
+      out.slice(0,5).forEach(l=>console.log(l));
+    ' "$FP" 2>/dev/null || true)"
+    if [ -n "$twv4hits" ]; then
+      problems+=("Tailwind v4 ambiguous text-[var()] in \`$FP\` — bare CSS-variable references on \`text-\` utilities must carry a type hint:"$'\n'"$twv4hits")
+    fi
+    ;;
+esac
+
 # --- report --------------------------------------------------------------------
 if [ ${#problems[@]} -gt 0 ]; then
   {
