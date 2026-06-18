@@ -47,6 +47,9 @@ Read design → map tokens → generate component → **one lightweight visual c
 No unit tests, no a11y-audit, no multi-tool browser verification matrix, and — critically —
 **never any test-framework setup**.
 
+**Preview trims:** tests, a11y audit, multi-tool verification depth.
+**Preview preserves:** the Step 2 token-mapping table + approval gate, and the Step 5 structured report. These run in every mode.
+
 ### Production Integration
 All of the above, plus: tests (per the `component-generator` gating rules — only if runner
 exists AND the component has meaningful behavior), `a11y-audit` subagent, and the fuller
@@ -72,7 +75,11 @@ verification pass.
 3. **Identify component structure** — What are the logical sub-components?
    Is this a single component or a composition of smaller ones?
 
-### Step 2 — Map to Project Tokens
+### Step 2 — Map to Project Tokens *(hard checkpoint — both modes)*
+
+> **STOP gate.** Produce the token-mapping table below, flag any new tokens or
+> gaps, and **wait for user approval BEFORE writing component code.** This
+> checkpoint runs in Replicate/Preview mode too — it is never trimmed.
 
 Compare Figma specs against the project's existing design system:
 
@@ -96,6 +103,8 @@ Compare Figma specs against the project's existing design system:
 **For off-grid values:**
 - Snap to the nearest grid value (4px grid for spacing, established scale for type)
 - Flag the deviation: "Figma shows 6px radius — snapping to `--radius-sm` (4px) or `--radius-md` (8px). Which do you prefer?"
+
+**Do not proceed to Step 3 until the user approves the mapping.**
 
 ### Step 3 — Generate Component Code
 
@@ -123,7 +132,10 @@ in this mode.
 3. **Fuller verification** — Cross-browser DOM snapshot, interaction states,
    responsive spot-check at 375px / 768px / 1024px.
 
-### Step 5 — Report
+### Step 5 — Report *(required — both modes)*
+
+Use this exact format. The **Design Deviations** section is mandatory even
+when empty ("None") — it proves deviations were checked, not overlooked.
 
 ```markdown
 ## Figma → Code: [Component Name]
@@ -165,3 +177,6 @@ findings, and the fuller verification results.
 - **Don't over-build.** Implement exactly what the design shows. No speculative features.
 - **Flag design system conflicts.** If Figma uses tokens/values that conflict with the project's system, raise it — don't silently pick one.
 - **Effort proportional to the ask.** A bare "replicate this" is not a production ticket — default to Replicate/Preview and do not auto-escalate to test generation, a11y audits, or tooling setup. See the scope-proportionality principle in `CLAUDE.md`.
+- **Never skip the Step 2 mapping table or the approval gate**, even in Preview mode or for a one-line request. The token-mapping approval is cheap, high-value, and non-negotiable.
+- **Never skip the Step 5 structured report.** Use the prescribed format including the Design Deviations section.
+- **Reproducing this skill's output from memory without running its checkpoints is a defect, not efficiency.** See the Skill Invocation principle (§6) in `CLAUDE.md`.
