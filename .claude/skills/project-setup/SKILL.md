@@ -52,12 +52,16 @@ Follow the `/css-design-system` skill's three-tier token architecture
 (primitive → semantic → component). Adapt the token file to the detected
 stack:
 
-- **Tailwind v4** — `@theme` block in a `tokens.css` file
+- **Tailwind v4** — `@theme` block in `globals.css` (or a dedicated `tokens.css` imported by it). Theme-able tokens use `@theme inline` referencing custom properties on `:root`/`.dark`.
 - **Tailwind v3** — `tailwind.config.ts` extending theme with CSS variable references + a `:root` token file
 - **Vanilla CSS** — full `:root` block with primitives and semantic tokens
 
 All values must follow `.claude/references/conventions.md` (4px grid,
 rem for type, px for spacing, OKLCH/HSL colors, z-index scale).
+
+**Markup consumes tokens only through named utilities** (`text-lg`, `bg-primary`,
+`gap-4`, `rounded-md`, etc.) — never through arbitrary values referencing CSS
+variables. Define all tokens in `@theme` so the named utilities exist.
 
 ### Step 3 — Set Up Dark Mode
 

@@ -264,6 +264,8 @@ module.exports = {
 
 **Key difference:** `@theme` tokens generate both CSS variables AND Tailwind utility classes. `:root` variables are only CSS variables — no utility classes.
 
+**Markup consumes tokens only through named utilities** (`text-lg`, `bg-primary`, `gap-4`, `rounded-md`, etc.) — never through arbitrary values referencing CSS variables (`text-[var(--x)]`, `bg-[var(--x)]`, `text-[--x]`). Tailwind v4 + Turbopack mis-rewrite `var()` inside arbitrary values, breaking the build. If a needed utility does not exist, add the token to `@theme` to extend the scale.
+
 ### The `cn()` Utility Pattern
 
 Always use `cn()` for dynamic class composition to avoid specificity conflicts:
@@ -431,7 +433,7 @@ file covers the rules that apply across all styling work.
 1. **Detect the stack** — Is it Tailwind v3 (JS config), Tailwind v4 (`@theme`), or vanilla CSS?
 2. **Check for existing tokens** — Search for `globals.css`, `tokens.css`, `tailwind.config.*`, `:root`, `@theme`.
 3. **Scaffold the token file** — Create primitives and semantic tokens based on the project's existing colors/spacing, or propose a curated palette.
-4. **Wire into Tailwind** — Extend the config (v3) or use `@theme` (v4) to map tokens to utilities.
+4. **Wire into Tailwind** — Extend the config (v3) or use `@theme` (v4) to map tokens to named utilities. Markup must consume tokens only through these utilities — never through arbitrary values referencing CSS variables.
 5. **Set up dark mode** — Add `.dark` overrides for all semantic tokens.
 6. **Create the `cn()` utility** — If React/Next.js and not already present.
 7. **Add base styles** — `@layer base` with resets, body defaults, heading styles.
@@ -454,7 +456,7 @@ file covers the rules that apply across all styling work.
 | :--- | :--- | :--- | :--- | :--- |
 | `src/app/globals.css:45` | Raw hex `#3B82F6` used | Token violation | Replace with `var(--color-action-primary)` | **Critical** |
 | `src/components/Card.tsx:12` | `z-index: 999` | Z-index violation | Use `z-overlay` or `var(--z-overlay)` | **High** |
-| `src/components/Nav.tsx:30` | `font-size: 14px` | Units violation | Use `text-[0.875rem]` or `var(--text-sm)` | **Medium** |
+| `src/components/Nav.tsx:30` | `font-size: 14px` | Units violation | Use named utility `text-sm` (backed by `@theme` token `--text-sm`) | **Medium** |
 ```
 
 9. **For Critical/High issues**, provide exact code diffs showing the fix.

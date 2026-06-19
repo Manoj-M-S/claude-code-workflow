@@ -17,8 +17,9 @@ Create frontend components that are beautiful, responsive, fully accessible, and
 
 1. **A11y First** — Correct ARIA roles and states, focus management, keyboard accessibility (Enter/Space to trigger, Escape to close), and explicit labels.
 2. **Styling Conventions** — Padding, margin, and layout spacing must be in pixels (`px`). Font sizes must be in `rem`. Respect this bidirectional styling convention.
-3. **No Duplicate Logic** — Search the codebase for existing components and utilities before creating new ones.
-4. **State Coherence** — Keep state local unless shared state is required. Clean up subscriptions and event listeners.
+3. **Named Utilities Only** — Style via named Tailwind utilities backed by `@theme` tokens (`text-lg`, `bg-surface`, `gap-4`, `rounded-md`). Never use arbitrary values that reference CSS variables (`text-[var(--x)]`, `bg-[var(--x)]`, `text-[--x]`) — they break under Tailwind v4 + Turbopack.
+4. **No Duplicate Logic** — Search the codebase for existing components and utilities before creating new ones.
+5. **State Coherence** — Keep state local unless shared state is required. Clean up subscriptions and event listeners.
 
 ## Workflow
 
