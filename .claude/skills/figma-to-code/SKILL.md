@@ -72,30 +72,33 @@ verification pass.
 3. **Identify component structure** — What are the logical sub-components?
    Is this a single component or a composition of smaller ones?
 
-### Step 2 — Map to Project Tokens
+### Step 2 — Map to Named Utilities
 
-Compare Figma specs against the project's existing design system:
+Compare Figma specs against the project's existing design system. Every design
+value must map to a **named utility** backed by an existing or newly-added
+`@theme` token. The generated component must use named utilities only — never
+arbitrary values with `var()`.
 
 ```markdown
 ## Token Mapping
 
-| Figma Value | Project Token | Status |
-| :--- | :--- | :--- |
-| `#3B82F6` | `var(--color-action-primary)` | ✅ Exists |
-| `16px` padding | `var(--spacing-4)` | ✅ Exists |
-| `14px` font-size | `var(--text-sm)` / `0.875rem` | ✅ Exists |
-| `#F59E0B` | — | ⚠️ New — needs token |
-| `6px` radius | — | ⚠️ Off-grid (use `--radius-sm: 4px` or `--radius-md: 8px`) |
+| Figma Value | `@theme` Token | Named Utility | Status |
+| :--- | :--- | :--- | :--- |
+| `#3B82F6` | `--color-action-primary` | `bg-action-primary`, `text-action-primary` | ✅ Exists |
+| `16px` padding | `--spacing-4` | `p-4` | ✅ Exists |
+| `14px` font-size | `--text-sm` | `text-sm` | ✅ Exists |
+| `#F59E0B` | — | — | ⚠️ New — add to `@theme` |
+| `6px` radius | — | — | ⚠️ Off-grid (use `rounded-sm` 4px or `rounded-md` 8px) |
 ```
 
 **For missing tokens:**
 - Propose a semantic token name and primitive value
-- Show where to add it (e.g., `globals.css`, `tokens.css`, or `@theme` block)
+- Add it to the `@theme` block in `globals.css` (or `@theme inline` + `:root`/`.dark` if theme-able) so the named utility is generated automatically
 - Ask user to approve before proceeding
 
 **For off-grid values:**
 - Snap to the nearest grid value (4px grid for spacing, established scale for type)
-- Flag the deviation: "Figma shows 6px radius — snapping to `--radius-sm` (4px) or `--radius-md` (8px). Which do you prefer?"
+- Flag the deviation: "Figma shows 6px radius — snapping to `rounded-sm` (4px) or `rounded-md` (8px). Which do you prefer?"
 
 ### Step 3 — Generate Component Code
 
@@ -159,7 +162,7 @@ findings, and the fuller verification results.
 
 ## Guardrails
 
-- **Never use raw values.** Every spec must map to a token. If no token exists, create one first.
+- **Never use raw values or `var()`-bearing arbitrary values.** Every spec must map to a named utility backed by an `@theme` token. If no token exists, add it to `@theme` first.
 - **Never deviate from project patterns.** If the project uses CSS Modules, use CSS Modules. If it uses Tailwind, use Tailwind.
 - **Ask about ambiguity.** If the Figma design doesn't specify a state (e.g., no error state shown), ask rather than inventing one.
 - **Don't over-build.** Implement exactly what the design shows. No speculative features.
