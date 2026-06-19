@@ -17,14 +17,14 @@ automatically. When in doubt, this file wins.
 - **Tailwind arbitrary values**:
   - For spacing: prefer `px` (e.g. `p-[16px]`, `m-[24px]`, `w-[320px]`).
   - For typography: prefer `rem` (e.g. `text-[1rem]`, `text-[1.25rem]`).
-  - **`text-[var(--x)]` is banned** — Tailwind v4 cannot disambiguate font-size vs color from a bare CSS variable and defaults to color, silently dropping the font-size. Prefer mapping design tokens into the Tailwind theme so named utilities (`text-lg`, `text-heading`) are available. When an arbitrary `text-` value referencing a CSS variable is unavoidable, it MUST carry a type hint: `text-[length:var(--x)]` for size, `text-[color:var(--x)]` for color.
+  - **Arbitrary values that reference a CSS variable are banned** — `text-[var(--x)]`, `text-[length:var(--x)]`, `text-[color:var(--x)]`, `gap-[var(--gap)]`, `bg-[var(--x)]`, and the v4 shorthand `text-[--x]` are all prohibited. Tailwind v4 + Turbopack mis-rewrite `var()` inside arbitrary values (the variable name is dropped, producing broken CSS like `color: var()`) and break the dev server. **Design tokens are defined in the `@theme` block in `globals.css` and consumed only through named utilities** — `text-lg`, `text-heading`, `bg-surface`, `border-muted`, `gap-4`, `rounded-sm`, etc. If a needed utility does not exist, add the token to `@theme` to extend the named scale rather than reaching for an arbitrary value.
 
 ## Design Tokens & Theming
 
-- **No raw hex colors** — all colors via CSS custom properties (`var(--color-primary)`), never `#3B82F6` inline.
-- **No hardcoded spacing/typography values** — reference tokens (`var(--spacing-4)`, `var(--text-sm)`); if a value has no token, raise it as a design decision rather than inventing one.
-- **Single source of truth** — tokens defined once (e.g. `globals.css` / Tailwind config), never duplicated per component.
-- **Support dark mode via tokens**, not per-component overrides.
+- **No raw hex colors** — all colors via design tokens, never `#3B82F6` inline. Define color tokens in the Tailwind v4 `@theme` block and consume them through named utilities (`bg-primary`, `text-heading`, `border-muted`).
+- **No hardcoded spacing/typography values** — use named utilities backed by `@theme` tokens (`text-sm`, `gap-4`, `p-4`, `rounded-md`); if a value has no token, add it to `@theme` or raise it as a design decision rather than inventing one.
+- **Single source of truth** — tokens defined once in the `@theme` block (or `:root`/`.dark` for theme-able values consumed via `@theme inline`), never duplicated per component.
+- **Support dark mode via tokens**, not per-component overrides. Define theme-able semantic tokens on `:root`/`.dark` and reference them in `@theme inline` so named utilities automatically adapt to the active theme.
 
 ## CSS Architecture
 
