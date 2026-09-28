@@ -92,6 +92,11 @@ have to fire. (Hooks are the backstop; this file is the front door.)
 
 > **Authoritative detail:** `.claude/references/conventions.md` is the single
 > source of truth for these rules. The summary below is for quick reference.
+>
+> **Framework architecture** — rendering, caching, client boundaries, React 19
+> APIs, TypeScript strictness, CSP and security headers — lives in
+> `.claude/references/framework-architecture.md`, scoped to Next.js 16 +
+> React 19. Read it on those projects; ignore it entirely on any other stack.
 
 ## Units & Sizing
 

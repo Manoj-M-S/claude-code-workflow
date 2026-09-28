@@ -73,6 +73,13 @@ Search the existing codebase to understand what exists and what needs changing:
 3. **Map dependencies** — What other components/pages consume the affected code?
 4. **Check for conflicts** — Are there pending changes in other branches that
    touch the same files? (`git branch -a --list '*related-keyword*'`)
+5. **Name the architectural decisions** — where does this render (static /
+   dynamic / streamed), is any of the data cacheable or per-user, where does the
+   `'use client'` boundary fall, and does it need new state that belongs in the
+   URL rather than in a component? On Next.js 16 + React 19 projects, decide
+   these against `.claude/references/framework-architecture.md` and record the
+   choice in the plan — they are far more expensive to change after the code
+   exists than to decide now.
 
 Report as:
 
@@ -184,6 +191,7 @@ Flag anything that could derail the work:
 | No API endpoint exists yet for password reset | 🔴 Blocks backend integration | Mock the API, implement against contract. Coordinate with backend team. |
 | Design uses a color not in the token system | 🟡 Minor delay | Add token before implementing component. |
 | No existing pattern for timed redirects | 🟡 Decision needed | Use `useEffect` + `setTimeout` with cleanup. |
+| Feature reads `cookies()` inside a `'use cache'` segment | 🔴 Cross-user data leak | Split the dynamic read into a Suspense boundary, or use `'use cache: private'`. |
 ```
 
 ### Step 7 — Branch Name & Commit Strategy

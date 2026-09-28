@@ -20,6 +20,7 @@ Create frontend components that are beautiful, responsive, fully accessible, and
 3. **Named Utilities Only** — Style via named Tailwind utilities backed by `@theme` tokens (`text-lg`, `bg-surface`, `gap-4`, `rounded-md`). Never use arbitrary values that reference CSS variables (`text-[var(--x)]`, `bg-[var(--x)]`, `text-[--x]`) — they break under Tailwind v4 + Turbopack.
 4. **No Duplicate Logic** — Search the codebase for existing components and utilities before creating new ones.
 5. **State Coherence** — Keep state local unless shared state is required. Clean up subscriptions and event listeners.
+6. **Client Boundary Discipline** — On Next.js App Router projects, `'use client'` belongs on the interactive leaf, never on a wrapper that drags its whole subtree to the browser. See `.claude/references/framework-architecture.md` for rendering, caching, and React 19 API rules before reaching for `useEffect` or hand-written memoization.
 
 ## Workflow
 

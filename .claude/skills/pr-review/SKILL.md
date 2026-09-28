@@ -139,6 +139,12 @@ irrelevant ones, but don't skip them out of haste.
 - **Repo conventions** — Does it match the patterns already used in this
   codebase (error style, logging, file layout, naming)? Consistency beats
   personal preference — review against the repo, not against your own taste.
+- **Framework architecture** (Next.js 16 / React 19 only) — Dynamic APIs
+  (`cookies()`, `headers()`, `params`, `searchParams`) awaited before use?
+  Per-user data kept out of a shared `'use cache'`? `'use client'` pushed to the
+  leaf rather than a wrapper? Secrets kept out of `NEXT_PUBLIC_` vars? Judge
+  against `.claude/references/framework-architecture.md`; skip this dimension
+  entirely on other stacks.
 - **Docs** — Do user-facing changes need README/changelog/comment updates that
   are missing?
 

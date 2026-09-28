@@ -97,6 +97,7 @@ Not sure where to start? Use this table to find the right entry point for common
 │   └── qed42-blog-writing/    # QED42 content strategy, briefs, and drafts
 └── references/                # Shared reference files consumed by skills
     ├── conventions.md         # Single source of truth for frontend conventions
+    ├── framework-architecture.md  # Next.js 16 / React 19 architecture, caching, CSP
     ├── voice-and-editorial.md # QED42 voice, tone, and editorial rules (used by qed42-blog-writing)
     ├── positioning.md         # QED42 positioning and services (used by qed42-blog-writing)
     └── writing-patterns.md    # QED42 case study patterns (used by qed42-blog-writing)
@@ -248,6 +249,7 @@ The workflow is designed to be tuned for your project. Here are the most common 
 | What to change | Where |
 | :--- | :--- |
 | **Frontend conventions** — px/rem rules, Tailwind-cluster threshold, color-token enforcement | `.claude/references/conventions.md` — the single source of truth; editing here updates all skills that reference it |
+| **Framework architecture** — rendering/caching strategy, `'use client'` boundaries, React 19 APIs, CSP and security headers, greenfield setup order | `.claude/references/framework-architecture.md` — scoped to Next.js 16 + React 19; skip it wholesale on other stacks |
 | **px/rem & Tailwind-cluster thresholds** — the exact regex patterns and numeric limits | `.claude/hooks/post-edit.sh` — sections 3 (styling units) and 4 (repeated class clusters); adjust the regex or the `>=6` utility threshold |
 | **Enable or disable a hook** — e.g. turn off the post-edit secret scan | `.claude/settings.json` — remove or comment out the relevant hook object inside `hooks.PostToolUse`, `hooks.PreToolUse`, etc. |
 | **Add paths to the secret-file blocklist** — protect additional credential files | `.claude/settings.json` → `permissions.deny` array **and** `.claude/hooks/protect-secrets.sh` `is_secret_path()` function — both must be updated together |

@@ -16,7 +16,14 @@ feature matches its acceptance criteria by actually using the application —
 navigating, clicking, filling forms, and observing results — the way a real
 user would.
 
-You use **Playwright MCP** or **Chrome MCP** (or browser tools) to interact with the browser, and **Atlassian MCP** (if available) to read tickets and post results.
+You interact with the browser via two complementary MCPs — use each for what it's best at — and **Atlassian MCP** (if available) to read tickets and post results.
+
+| MCP | Use it to… | In this skill |
+| :--- | :--- | :--- |
+| **Playwright MCP** | *Drive & assert* — navigate, click, fill forms, read the accessibility snapshot, screenshot | Every functional criterion |
+| **Chrome DevTools MCP** | *Diagnose & measure* — console errors with stack traces, failed network requests, performance trace / Core Web Vitals | Runtime health + perf-related criteria |
+
+Rule of thumb: **Playwright answers "does it do the right thing?"; Chrome DevTools answers "is it healthy while doing it?"** Either browser tool alone is enough for a Smoke check; reach for DevTools when a criterion is about errors, network, or speed.
 
 ---
 
@@ -46,6 +53,7 @@ responsive spot-check at 375px / 768px / 1024px, and cross-state verification.
 | :--- | :--- | :--- |
 | Dev server running | `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000` | Run `npm run dev` first |
 | Browser Automation MCP | Check MCP server list for `playwright` or `chrome` / `puppeteer` | Tell user: `claude mcp add playwright` or use Chrome MCP |
+| Chrome DevTools MCP *(optional)* | Check MCP server list for `chrome-devtools` | Skip console/network/perf diagnostics; note it in the report |
 | Acceptance criteria | From ticket, conversation, or user input | Ask: "What should I verify?" |
 
 ---
@@ -74,6 +82,11 @@ List them before starting:
 without browser errors, verify the key elements are present via DOM snapshot,
 and check the computed styles that matter. A targeted DOM snapshot is preferred
 over a full screenshot — more reliable, faster, and sufficient for most checks.
+
+As a cheap, high-value signal, also glance at the **console and network** (Chrome
+DevTools MCP if connected): a page that renders but throws console errors or has
+failed network requests is a real failure even when the DOM looks right. Report
+those alongside the criteria.
 
 **Full acceptance:** For each criterion, use Playwright MCP to:
 

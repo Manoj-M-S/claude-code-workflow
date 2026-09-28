@@ -58,6 +58,11 @@ To avoid common AI-generated design patterns (like warm cream background + serif
 2. **Pass 2 — Self-Critique**:
    - Review the plan. If any part looks like a default that could apply to any generic website, revise it before writing any code.
    - When writing the code, be careful of selector specificity (e.g. paddings and margins between sections).
+3. **Pass 3 — Rendered Critique** *(after building, only if a running app/preview is reachable)*:
+   - You can now *see* your work — don't critique from memory. If a dev server is up and a browser MCP is connected, **screenshot the built UI** (Playwright MCP) and critique the actual pixels: spacing rhythm, type hierarchy, alignment, whether the signature element reads as intended.
+   - Screenshot **both themes** and at **375px and 768px** — dark-mode continuity and responsive behavior are claims you can only verify by looking.
+   - Fix what the render reveals, then re-shoot. Cap at ~2 iterations to stay proportional — this is a design polish loop, not a QA pass (that's `/qa-validate`).
+   - If no running preview is available, skip this pass rather than blocking; note that the design was not visually verified.
 
 ---
 
